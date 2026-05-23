@@ -1,0 +1,68 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any
+
+
+REPORTS_DIR = Path("reports")
+
+
+METRICS = [
+    ("CPU single-core", ("results", "cpu_benchmark", "score", "single_core"), "higher"),
+    ("CPU multi-core", ("results", "cpu_benchmark", "score", "multi_core"), "higher"),
+    ("RAM lectura", ("results", "memory_benchmark", "bandwidth", "read_mib_per_second"), "higher"),
+    ("RAM escritura", ("results", "memory_benchmark", "bandwidth", "write_mib_per_second"), "higher"),
+    ("Disco lectura", ("results", "disk_benchmark", "read", "mib_per_second"), "higher"),
+    ("Disco escritura", ("results", "disk_benchmark", "write", "mib_per_second"), "higher"),
+    ("Disco latencia", ("results", "disk_benchmark", "latency", "average_ms"), "lower"),
+    ("Ping", ("results", "network_benchmark", "ping", "average_ms"), "lower"),
+    ("Seguridad warnings", ("results", "security_audit", "summary", "warning"), "lower"),
+]
+
+
+def latest_json_reports(limit: int = 2) -> list[Path]:
+    reports = sorted(REPORTS_DIR.glob("pcbench_report_*.json"), key=lambda path: path.stat().st_mtime)
+    return reports[-limit:]
+
+
+def compare_latest_reports() -> dict[str, Any]:
+    paths = latest_json_reports(2)
+    if len(paths) < 2:
+        return {"status": "failed", "error": "Se necesitan al menos dos reportes JSON para comparar.", "paths": paths}
+    return compare_reports(paths[0], paths[1])
+
+
+def compare_reports(base_path: Path, current_path: Path) -> dict[str, Any]:
+    base = json.loads(base_path.read_text(encoding="utf-8"))
+    current = json.loads(current_path.read_text(encoding="utf-8"))
+    rows = []
+    for label, path, direction in METRICS:
+        before = _get(base, path)
+        after = _get(current, path)
+        rows.append(_compare_metric(label, before, after, direction))
+    return {
+        "status": "passed",
+        "base_path": str(base_path),
+        "current_path": str(current_path),
+        "rows": rows,
+    }
+
+
+def _compare_metric(label: str, before: Any, after: Any, direction: str) -> dict[str, Any]:
+    if not isinstance(before, (int, float)) or not isinstance(after, (int, float)):
+        return {"metric": label, "before": before, "after": after, "delta": None, "percent": None, "result": "sin datos"}
+    delta = round(after - before, 3)
+    percent = round((delta / before) * 100, 2) if before else None
+    improved = delta > 0 if direction == "higher" else delta < 0
+    result = "mejor" if improved else "peor" if delta else "igual"
+    return {"metric": label, "before": before, "after": after, "delta": delta, "percent": percent, "result": result}
+
+
+def _get(data: dict[str, Any], path: tuple[str, ...]) -> Any:
+    current: Any = data
+    for key in path:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
