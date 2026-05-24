@@ -1,0 +1,33 @@
+# Security Policy
+
+## Supported Versions
+
+PCBench Local is currently pre-1.0. Security fixes are applied to the `main` branch.
+
+## Scope
+
+This project is a local diagnostic and benchmark tool. It should not collect secrets, upload reports automatically, or modify security settings without explicit user action.
+
+The security audit module is read-only by design. It checks local configuration such as firewall state, Defender status, listening ports, startup entries, and local administrators.
+
+## Reporting a Vulnerability
+
+For private repositories, report issues directly to the repository owner.
+
+When reporting, include:
+
+- Operating system and Python version.
+- Command used.
+- Relevant error output.
+- Whether the issue exposes sensitive local data or changes system state.
+
+## Sensitive Data
+
+Generated reports may include local hardware details, usernames, IP addresses, listening ports, process names, and security configuration summaries. Reports are ignored by Git via `/reports/` and should be reviewed before sharing publicly.
+
+## Design Rules
+
+- Do not add network upload behavior by default.
+- Do not store credentials or tokens in reports.
+- Do not run destructive commands from audits.
+- Keep security checks read-only unless a future command clearly asks the user for remediation.

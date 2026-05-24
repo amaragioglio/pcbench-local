@@ -16,6 +16,13 @@ La interfaz esta pensada para terminal: logs en vivo, barras de metricas y repor
 - Comparacion entre reportes.
 - Dockerfile para uso portable, con limitaciones normales de hardware dentro de contenedores.
 
+## Seguridad del Proyecto
+
+- Los reportes locales se guardan en `/reports/` y no se suben a Git.
+- La auditoria de seguridad es de solo lectura.
+- No hay subida automatica de datos.
+- Ver [SECURITY.md](SECURITY.md) para reglas y alcance.
+
 ## Instalacion Local
 
 Windows:
