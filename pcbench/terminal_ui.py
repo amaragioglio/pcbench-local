@@ -7,6 +7,7 @@ from typing import Any, TypeVar
 
 from rich.console import Console
 from rich.theme import Theme
+from pcbench.reports.metrics import score_bar
 
 
 T = TypeVar("T")
@@ -60,8 +61,20 @@ def print_report_summary(
     report_path: Path | None,
     html_path: Path | None = None,
     document_path: Path | None = None,
+    markdown_path: Path | None = None,
 ) -> None:
     console.print()
+    _print_dashboard(console, {
+        "results": {
+            "memory_benchmark": memory_benchmark,
+            "cpu_benchmark": cpu_benchmark,
+            "disk_benchmark": disk_benchmark,
+            "network_benchmark": network_benchmark,
+            "gpu_benchmark": gpu_benchmark,
+            "security_audit": security_audit,
+        }
+    })
+
     _section(console, "RESUMEN")
 
     machine = system_info["machine"]
@@ -142,6 +155,8 @@ def print_report_summary(
         _kv(console, "HTML", html_path)
     if document_path:
         _kv(console, "Documento", document_path)
+    if markdown_path:
+        _kv(console, "Markdown", markdown_path)
 
 
 def print_comparison(console: Console, comparison: dict) -> None:
@@ -164,6 +179,22 @@ def print_comparison(console: Console, comparison: dict) -> None:
     console.print()
     _kv(console, "Base", comparison["base_path"])
     _kv(console, "Actual", comparison["current_path"])
+    if comparison.get("profile_warning"):
+        console.print("[warn]WARN[/warn] Los reportes comparados usan perfiles distintos.")
+
+
+def _print_dashboard(console: Console, report: dict[str, Any]) -> None:
+    from pcbench.reports.metrics import build_dashboard
+
+    dashboard = build_dashboard(report)
+    _section(console, "DASHBOARD")
+    _kv(console, "Score general", f"{dashboard['overall_score']} / 100 [{dashboard['overall_status']}]")
+    for row in dashboard["rows"]:
+        style = "ok" if row["status"] in {"GOOD", "OK"} else "warn" if row["status"] == "WARN" else "danger"
+        console.print(
+            f"  [label]{row['area']:<8}[/label] [{style}]{score_bar(row['score'], 18)}[/{style}] "
+            f"[value]{row['score']:>5}[/value] [muted]{row['status']:<5}[/muted] {row['detail']}"
+        )
 
 
 def _build_emit(console: Console) -> Callable[[str], None]:

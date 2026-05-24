@@ -13,6 +13,8 @@ La interfaz esta pensada para terminal: logs en vivo, barras de metricas y repor
 - GPU: deteccion, VRAM, uso y temperatura si el driver lo expone.
 - Seguridad local: Defender, firewall, puertos, conexiones, admins e inicio automatico.
 - Reportes JSON, HTML y DOCX compatible con OnlyOffice.
+- Reporte Markdown para GitHub/issues.
+- Dashboard con score general y estado por categoria.
 - Comparacion entre reportes.
 - Dockerfile para uso portable, con limitaciones normales de hardware dentro de contenedores.
 
@@ -29,6 +31,13 @@ Windows:
 
 ```powershell
 python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
+```
+
+Desarrollo en Windows:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 .\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
 ```
 
@@ -65,6 +74,18 @@ Comparar los dos ultimos reportes JSON:
 .\.venv\Scripts\python.exe main.py compare
 ```
 
+Comparar solo reportes del mismo perfil:
+
+```powershell
+.\.venv\Scripts\python.exe main.py compare --profile quick
+```
+
+Comparar archivos especificos:
+
+```powershell
+.\.venv\Scripts\python.exe main.py compare --base reports\old.json --current reports\new.json
+```
+
 La comparacion es mas justa cuando ambos reportes usan el mismo perfil: `quick` contra `quick`, normal contra normal o `full` contra `full`.
 
 ## Opciones
@@ -90,6 +111,7 @@ Cada ejecucion con guardado genera:
 - `reports/pcbench_report_*.json`: datos completos para comparar.
 - `reports/pcbench_report_*.html`: resumen visual en navegador.
 - `reports/pcbench_report_*.docx`: documento que puedes abrir con OnlyOffice.
+- `reports/pcbench_report_*.md`: resumen Markdown para GitHub.
 
 ## Docker
 
@@ -155,6 +177,8 @@ pcbench/
     docx_report.py
     html_report.py
     json_report.py
+    markdown_report.py
+    metrics.py
   security/
     audit.py
   cli.py
@@ -162,6 +186,7 @@ pcbench/
   terminal_ui.py
 main.py
 requirements.txt
+requirements-dev.txt
 requirements-windows.txt
 Dockerfile
 pyproject.toml

@@ -10,3 +10,9 @@
 - Added report comparison.
 - Added Dockerfile and GitHub Actions CI.
 - Added project packaging metadata.
+
+## Unreleased
+
+- Added normalized dashboard scores.
+- Added Markdown report export.
+- Added explicit compare options for base/current reports and profile filtering.

@@ -31,6 +31,17 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
         f"Fin: {report.get('finished_at', '')}",
         "",
     ]
+    dashboard = report.get("dashboard")
+    if dashboard:
+        paragraphs.extend(
+            [
+                "Dashboard",
+                f"Score general: {dashboard.get('overall_score')} / 100 {dashboard.get('overall_status')}",
+            ]
+        )
+        for row in dashboard.get("rows", []):
+            paragraphs.append(f"{row['area']}: {row['score']} {row['status']} - {row['detail']}")
+        paragraphs.append("")
 
     system = results.get("system_info")
     if system:

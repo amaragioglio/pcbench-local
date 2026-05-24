@@ -17,6 +17,8 @@ from pcbench.benchmarks.system_info import collect_basic_system_info
 from pcbench.reports.html_report import save_html_report
 from pcbench.reports.docx_report import save_docx_report
 from pcbench.reports.json_report import save_json_report
+from pcbench.reports.markdown_report import save_markdown_report
+from pcbench.reports.metrics import build_dashboard
 from pcbench.security.audit import run_security_audit
 from pcbench.terminal_ui import print_report_summary, run_step
 
@@ -137,14 +139,17 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         report["results"]["security_audit"] = security_audit
 
     report["finished_at"] = datetime.now().astimezone().isoformat()
+    report["dashboard"] = build_dashboard(report)
 
     json_path = None
     html_path = None
     document_path = None
+    markdown_path = None
     if not args.no_save:
         json_path = save_json_report(report)
         html_path = save_html_report(report, json_path)
         document_path = save_docx_report(report)
+        markdown_path = save_markdown_report(report)
 
     print_report_summary(
         console,
@@ -158,8 +163,9 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         json_path,
         html_path,
         document_path,
+        markdown_path,
     )
-    return {"json": json_path, "html": html_path, "document": document_path}
+    return {"json": json_path, "html": html_path, "document": document_path, "markdown": markdown_path}
 
 
 def _with_events(emit: Emit, messages: list[str], task: Callable[[], Any]) -> Any:

@@ -19,7 +19,9 @@ def save_html_report(report: dict[str, Any], json_path: Path | None = None) -> P
 
 def _render_html(report: dict[str, Any], json_path: Path | None) -> str:
     results = report.get("results", {})
+    dashboard = report.get("dashboard", {})
     cards = [
+        _card("Dashboard", _dashboard_rows(dashboard)),
         _card("Sistema", _system_rows(results.get("system_info"))),
         _card("RAM", _memory_rows(results.get("memory_benchmark"))),
         _card("CPU", _cpu_rows(results.get("cpu_benchmark"))),
@@ -67,6 +69,15 @@ def _card(title: str, rows: list[tuple[str, Any]]) -> str:
         rows = [("Estado", "No ejecutado")]
     body = "".join(f"<tr><td>{html.escape(label)}</td><td>{html.escape(str(value))}</td></tr>" for label, value in rows)
     return f"<section><h2>{html.escape(title)}</h2><table>{body}</table></section>"
+
+
+def _dashboard_rows(data: dict | None) -> list[tuple[str, Any]]:
+    if not data:
+        return []
+    rows = [("General", f"{data.get('overall_score')} / 100 {data.get('overall_status')}")]
+    for row in data.get("rows", []):
+        rows.append((row["area"], f"{row['score']} {row['status']} | {row['detail']}"))
+    return rows
 
 
 def _system_rows(data: dict | None) -> list[tuple[str, Any]]:

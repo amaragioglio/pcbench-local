@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import argparse
+from pathlib import Path
 
 from pcbench import __version__
-from pcbench.reports.compare import compare_latest_reports
+from pcbench.reports.compare import compare_latest_reports, compare_reports
 from pcbench.runner import run_benchmarks
 from pcbench.terminal_ui import build_console, print_comparison, print_header
 
@@ -98,6 +99,24 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Omite auditoria local de seguridad.",
     )
+    parser.add_argument(
+        "--base",
+        type=Path,
+        default=None,
+        help="Reporte JSON base para compare.",
+    )
+    parser.add_argument(
+        "--current",
+        type=Path,
+        default=None,
+        help="Reporte JSON actual para compare.",
+    )
+    parser.add_argument(
+        "--profile",
+        choices=("quick", "normal", "full"),
+        default=None,
+        help="Compara los dos ultimos reportes del perfil indicado.",
+    )
     return parser
 
 
@@ -110,7 +129,10 @@ def main() -> None:
     print_header(console, __version__)
 
     if args.command == "compare":
-        print_comparison(console, compare_latest_reports())
+        if args.base and args.current:
+            print_comparison(console, compare_reports(args.base, args.current))
+        else:
+            print_comparison(console, compare_latest_reports(args.profile))
         return
 
     run_benchmarks(args, console)
