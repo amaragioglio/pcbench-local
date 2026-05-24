@@ -62,6 +62,13 @@ En Windows tambien puedes ejecutar:
 .\pcbench.bat
 ```
 
+El wizard incluye presets:
+
+- `quick`: Recon rapido con CPU/RAM/DISCO y reportes ligeros.
+- `full`: Diagnostico completo con todos los modulos.
+- `supabase`: Core benchmark + JSON optimizado para Supabase.
+- `custom`: seleccion manual de perfil, modulos y reportes.
+
 Ejecutar perfil normal:
 
 ```powershell

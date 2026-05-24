@@ -19,3 +19,4 @@
 - Added interactive wizard command.
 - Added Supabase-optimized JSON export.
 - Added Windows launcher script.
+- Added wizard presets and execution confirmation.
