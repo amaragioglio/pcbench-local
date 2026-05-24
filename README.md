@@ -95,21 +95,41 @@ Cada ejecucion con guardado genera:
 
 Construir imagen:
 
-```bash
+```powershell
 docker build -t pcbench-local .
 ```
 
 Ejecutar rapido:
 
-```bash
+```powershell
 docker run --rm -it pcbench-local
 ```
 
 Guardar reportes en una carpeta local:
 
+PowerShell:
+
+```powershell
+docker run --rm -it -v ${PWD}\reports:/app/reports pcbench-local run --quick --skip-security
+```
+
+Bash:
+
 ```bash
 docker run --rm -it -v "$PWD/reports:/app/reports" pcbench-local run --quick --skip-security
 ```
+
+Si tu terminal no soporta TTY, ejecuta sin `-it`:
+
+```powershell
+docker run --rm pcbench-local
+```
+
+Validado en Docker Desktop con Linux containers:
+
+- `docker build -t pcbench-local .`
+- `docker run --rm pcbench-local`
+- `docker run --rm -v <ruta-local>/reports:/app/reports pcbench-local run --quick --skip-security --skip-gpu --skip-network`
 
 Notas importantes de Docker:
 
