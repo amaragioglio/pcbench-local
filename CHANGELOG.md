@@ -16,3 +16,6 @@
 - Added normalized dashboard scores.
 - Added Markdown report export.
 - Added explicit compare options for base/current reports and profile filtering.
+- Added interactive wizard command.
+- Added Supabase-optimized JSON export.
+- Added Windows launcher script.

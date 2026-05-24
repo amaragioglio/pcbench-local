@@ -50,6 +50,18 @@ python3 -m venv .venv
 
 ## Uso
 
+Modo interactivo recomendado:
+
+```powershell
+.\.venv\Scripts\python.exe main.py wizard
+```
+
+En Windows tambien puedes ejecutar:
+
+```powershell
+.\pcbench.bat
+```
+
 Ejecutar perfil normal:
 
 ```powershell
@@ -102,6 +114,7 @@ La comparacion es mas justa cuando ambos reportes usan el mismo perfil: `quick` 
 .\.venv\Scripts\python.exe main.py run --cpu-seconds 10
 .\.venv\Scripts\python.exe main.py run --disk-mib 1024
 .\.venv\Scripts\python.exe main.py run --speedtest
+.\.venv\Scripts\python.exe main.py run --reports json,html,supabase
 ```
 
 ## Reportes
@@ -112,6 +125,17 @@ Cada ejecucion con guardado genera:
 - `reports/pcbench_report_*.html`: resumen visual en navegador.
 - `reports/pcbench_report_*.docx`: documento que puedes abrir con OnlyOffice.
 - `reports/pcbench_report_*.md`: resumen Markdown para GitHub.
+- `reports/pcbench_supabase_*.json`: payload con tablas planas para Supabase.
+
+### JSON para Supabase
+
+El export Supabase genera un JSON con estas claves:
+
+- `pcbench_runs`
+- `pcbench_metrics`
+- `pcbench_findings`
+
+Cada clave contiene una lista de filas pensadas para importar o insertar en tablas de Supabase.
 
 ## Docker
 
@@ -185,6 +209,7 @@ pcbench/
   runner.py
   terminal_ui.py
 main.py
+pcbench.bat
 requirements.txt
 requirements-dev.txt
 requirements-windows.txt

@@ -19,6 +19,7 @@ from pcbench.reports.docx_report import save_docx_report
 from pcbench.reports.json_report import save_json_report
 from pcbench.reports.markdown_report import save_markdown_report
 from pcbench.reports.metrics import build_dashboard
+from pcbench.reports.supabase_report import save_supabase_report
 from pcbench.security.audit import run_security_audit
 from pcbench.terminal_ui import print_report_summary, run_step
 
@@ -145,11 +146,19 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     html_path = None
     document_path = None
     markdown_path = None
+    supabase_path = None
     if not args.no_save:
-        json_path = save_json_report(report)
-        html_path = save_html_report(report, json_path)
-        document_path = save_docx_report(report)
-        markdown_path = save_markdown_report(report)
+        selected_reports = _selected_reports(args)
+        if "json" in selected_reports:
+            json_path = save_json_report(report)
+        if "html" in selected_reports:
+            html_path = save_html_report(report, json_path)
+        if "docx" in selected_reports:
+            document_path = save_docx_report(report)
+        if "md" in selected_reports:
+            markdown_path = save_markdown_report(report)
+        if "supabase" in selected_reports:
+            supabase_path = save_supabase_report(report)
 
     print_report_summary(
         console,
@@ -164,8 +173,9 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         html_path,
         document_path,
         markdown_path,
+        supabase_path,
     )
-    return {"json": json_path, "html": html_path, "document": document_path, "markdown": markdown_path}
+    return {"json": json_path, "html": html_path, "document": document_path, "markdown": markdown_path, "supabase": supabase_path}
 
 
 def _with_events(emit: Emit, messages: list[str], task: Callable[[], Any]) -> Any:
@@ -180,3 +190,8 @@ def _profile_name(args: Any) -> str:
     if getattr(args, "full", False):
         return "full"
     return "normal"
+
+
+def _selected_reports(args: Any) -> set[str]:
+    raw = getattr(args, "reports", None) or "json,html,docx,md"
+    return {item.strip().lower() for item in raw.split(",") if item.strip()}

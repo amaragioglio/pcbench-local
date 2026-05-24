@@ -7,6 +7,7 @@ from pcbench import __version__
 from pcbench.reports.compare import compare_latest_reports, compare_reports
 from pcbench.runner import run_benchmarks
 from pcbench.terminal_ui import build_console, print_comparison, print_header
+from pcbench.wizard import configure_interactive
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -17,7 +18,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("run", "compare"),
+        choices=("run", "compare", "wizard"),
         default="run",
         help="Comando a ejecutar. Por defecto: run.",
     )
@@ -35,6 +36,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--no-save",
         action="store_true",
         help="Ejecuta el analisis inicial sin guardar reporte JSON.",
+    )
+    parser.add_argument(
+        "--reports",
+        default="json,html,docx,md",
+        help="Formatos de reporte separados por coma: json,html,docx,md,supabase.",
     )
     parser.add_argument(
         "--skip-ram",
@@ -134,6 +140,10 @@ def main() -> None:
         else:
             print_comparison(console, compare_latest_reports(args.profile))
         return
+
+    if args.command == "wizard":
+        args = configure_interactive(args, console)
+        _apply_profile(args)
 
     run_benchmarks(args, console)
 

@@ -62,6 +62,7 @@ def print_report_summary(
     html_path: Path | None = None,
     document_path: Path | None = None,
     markdown_path: Path | None = None,
+    supabase_path: Path | None = None,
 ) -> None:
     console.print()
     _print_dashboard(console, {
@@ -157,6 +158,8 @@ def print_report_summary(
         _kv(console, "Documento", document_path)
     if markdown_path:
         _kv(console, "Markdown", markdown_path)
+    if supabase_path:
+        _kv(console, "Supabase JSON", supabase_path)
 
 
 def print_comparison(console: Console, comparison: dict) -> None:
