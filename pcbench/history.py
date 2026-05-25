@@ -156,6 +156,11 @@ def latest_runs(limit: int = 10, output_dir: Path | str | None = None) -> list[d
     return [dict(row) for row in rows]
 
 
+def score_trend(limit: int = 12, output_dir: Path | str | None = None) -> list[dict[str, Any]]:
+    rows = latest_runs(limit, output_dir)
+    return list(reversed(rows))
+
+
 def _run_id(report: dict[str, Any]) -> str:
     raw = f"{report.get('started_at', '')}-{report.get('profile', 'normal')}"
     return raw.replace(":", "").replace(".", "").replace("+", "_")

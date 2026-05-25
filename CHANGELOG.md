@@ -34,3 +34,4 @@
 - Removed `speedtest-cli` from core dependencies; `--speedtest` is now optional.
 - Added PyInstaller spec and tag-driven Windows release workflow.
 - Added local SQLite run history with `pcbench history`.
+- Added inline HTML score trend charts backed by SQLite history.

@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pcbench.history import score_trend
 from pcbench.reports.paths import ensure_reports_dir
 
 
@@ -12,15 +13,16 @@ def save_html_report(report: dict[str, Any], json_path: Path | None = None, outp
     reports_dir = ensure_reports_dir(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     path = reports_dir / f"pcbench_report_{timestamp}.html"
-    path.write_text(_render_html(report, json_path), encoding="utf-8")
+    path.write_text(_render_html(report, json_path, score_trend(output_dir=output_dir)), encoding="utf-8")
     return path
 
 
-def _render_html(report: dict[str, Any], json_path: Path | None) -> str:
+def _render_html(report: dict[str, Any], json_path: Path | None, trend: list[dict[str, Any]] | None = None) -> str:
     results = report.get("results", {})
     dashboard = report.get("dashboard", {})
     cards = [
         _card("Dashboard", _dashboard_rows(dashboard)),
+        _trend_card(trend or []),
         _card("System", _system_rows(results.get("system_info"))),
         _card("RAM", _memory_rows(results.get("memory_benchmark"))),
         _card("CPU", _cpu_rows(results.get("cpu_benchmark"))),
@@ -44,6 +46,10 @@ def _render_html(report: dict[str, Any], json_path: Path | None) -> str:
     h2 {{ margin:0 0 12px; color:var(--line); font-size:18px; }}
     main {{ padding:18px; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; }}
     section {{ border:1px solid #145c2b; background:var(--panel); padding:14px; }}
+    svg {{ width:100%; height:auto; }}
+    svg line {{ stroke:#134d25; stroke-width:1; }}
+    svg polyline {{ fill:none; stroke:var(--line); stroke-width:3; }}
+    svg circle {{ fill:var(--line); }}
     table {{ width:100%; border-collapse:collapse; }}
     td {{ padding:6px 0; border-bottom:1px solid #103d20; vertical-align:top; }}
     td:first-child {{ color:var(--muted); width:42%; }}
@@ -68,6 +74,41 @@ def _card(title: str, rows: list[tuple[str, Any]]) -> str:
         rows = [("Status", "Not run")]
     body = "".join(f"<tr><td>{html.escape(label)}</td><td>{html.escape(str(value))}</td></tr>" for label, value in rows)
     return f"<section><h2>{html.escape(title)}</h2><table>{body}</table></section>"
+
+
+def _trend_card(rows: list[dict[str, Any]]) -> str:
+    values = [row for row in rows if isinstance(row.get("overall_score"), (int, float))]
+    if len(values) < 2:
+        return _card("Score Trend", [("Status", "Need at least two history rows")])
+
+    width = 420
+    height = 150
+    padding = 24
+    usable_width = width - padding * 2
+    usable_height = height - padding * 2
+    points = []
+    for index, row in enumerate(values):
+        x = padding + (usable_width * index / max(1, len(values) - 1))
+        score = max(0.0, min(100.0, float(row["overall_score"])))
+        y = padding + usable_height - (score / 100.0 * usable_height)
+        points.append((x, y, score))
+
+    polyline = " ".join(f"{x:.1f},{y:.1f}" for x, y, _score in points)
+    dots = "".join(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" />' for x, y, _score in points)
+    latest = values[-1]
+    first = values[0]
+    delta = round(float(latest["overall_score"]) - float(first["overall_score"]), 2)
+    summary = html.escape(f"{first['overall_score']} -> {latest['overall_score']} ({delta:+})")
+    svg = f"""
+    <svg viewBox="0 0 {width} {height}" role="img" aria-label="Overall score trend">
+      <line x1="{padding}" y1="{height - padding}" x2="{width - padding}" y2="{height - padding}" />
+      <line x1="{padding}" y1="{padding}" x2="{padding}" y2="{height - padding}" />
+      <polyline points="{polyline}" />
+      {dots}
+    </svg>
+    <p class="meta">Overall score trend: {summary}</p>
+    """
+    return f"<section><h2>Score Trend</h2>{svg}</section>"
 
 
 def _dashboard_rows(data: dict | None) -> list[tuple[str, Any]]:

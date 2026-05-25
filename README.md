@@ -172,6 +172,8 @@ Generated artifacts:
 - `pcbench.log`: local rotating runtime log.
 - `pcbench_history.sqlite`: local SQLite history for runs, metrics and findings.
 
+When history has at least two rows, HTML reports include an inline score trend chart.
+
 ### Supabase JSON
 
 The Supabase export contains these flat table keys:
