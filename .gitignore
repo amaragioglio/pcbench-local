@@ -5,7 +5,9 @@ venv/
 env/
 .env
 .env.*
+.claude/
 /reports/
+/.baseline/
 *.log
 *.egg-info/
 build/

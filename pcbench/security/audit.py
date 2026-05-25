@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+import platform
 import subprocess
 from typing import Any
 
 import psutil
+
+from pcbench.security.linux_audit import run_linux_security_audit
 
 
 POWERSHELL = "powershell"
@@ -12,6 +15,9 @@ COMMON_EXPOSED_PORTS = {21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 389, 443, 44
 
 
 def run_security_audit() -> dict[str, Any]:
+    if platform.system().lower() == "linux":
+        return run_linux_security_audit()
+
     defender = _collect_defender_status()
     firewall = _collect_firewall_status()
     local_admins = _collect_local_admins()
@@ -21,6 +27,7 @@ def run_security_audit() -> dict[str, Any]:
     findings = _build_findings(defender, firewall, local_admins, listening_ports)
 
     return {
+        "platform": "windows",
         "defender": defender,
         "firewall": firewall,
         "local_admins": local_admins,

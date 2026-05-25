@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import platform
 import re
 import socket
 import statistics
@@ -66,7 +67,8 @@ def _collect_adapters() -> list[dict[str, Any]]:
 
 
 def _run_ping(host: str) -> dict[str, Any]:
-    command = ["ping", "-n", str(PING_COUNT), host]
+    count_flag = "-n" if platform.system() == "Windows" else "-c"
+    command = ["ping", count_flag, str(PING_COUNT), host]
     started = time.perf_counter()
 
     try:
@@ -104,20 +106,19 @@ def _run_ping(host: str) -> dict[str, Any]:
 
 def _extract_ping_latencies(output: str) -> list[float]:
     latencies: list[float] = []
-    for match in re.finditer(r"(?:time|tiempo)[=<]?\s*(\d+(?:\.\d+)?)\s*ms", output, flags=re.IGNORECASE):
+    for match in re.finditer(r"(?:time|tiempo)[=<]\s*(\d+(?:\.\d+)?)\s*ms", output, flags=re.IGNORECASE):
         latencies.append(float(match.group(1)))
     return latencies
 
 
 def _extract_packet_loss(output: str) -> float | None:
-    match = re.search(r"\((\d+(?:\.\d+)?)%\s*(?:loss|perdidos)", output, flags=re.IGNORECASE)
+    match = re.search(
+        r"(\d+(?:\.\d+)?)\s*%\s*(?:packet\s+)?(?:loss|perdidos)",
+        output,
+        flags=re.IGNORECASE,
+    )
     if match:
         return float(match.group(1))
-
-    match = re.search(r"(\d+(?:\.\d+)?)%\s*(?:loss|perdidos)", output, flags=re.IGNORECASE)
-    if match:
-        return float(match.group(1))
-
     return None
 
 

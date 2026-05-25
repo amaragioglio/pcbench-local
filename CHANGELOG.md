@@ -20,3 +20,4 @@
 - Added Supabase-optimized JSON export.
 - Added Windows launcher script.
 - Added wizard presets and execution confirmation.
+- Added Linux read-only security audit.

@@ -142,7 +142,10 @@ def main() -> None:
         return
 
     if args.command == "wizard":
-        args = configure_interactive(args, console)
+        configured = configure_interactive(args, console)
+        if configured is None:
+            return
+        args = configured
         _apply_profile(args)
 
     run_benchmarks(args, console)
