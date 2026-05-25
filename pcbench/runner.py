@@ -6,8 +6,10 @@ import logging
 from pathlib import Path
 import signal
 from typing import Any
+import webbrowser
 
 from rich.console import Console
+from rich.prompt import Confirm
 
 from pcbench import __version__
 from pcbench.benchmarks.cpu import run_cpu_benchmark
@@ -240,6 +242,7 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
         markdown_path,
         supabase_path,
     )
+    _offer_open_html_report(console, html_path)
     logger.info("run_finish profile=%s", report["profile"])
     return {"json": json_path, "html": html_path, "document": document_path, "markdown": markdown_path, "supabase": supabase_path}
 
@@ -258,6 +261,13 @@ def _build_sigint_handler(logger: logging.Logger) -> Callable[[int, Any], None]:
         raise KeyboardInterrupt
 
     return handler
+
+
+def _offer_open_html_report(console: Console, html_path: Path | None) -> None:
+    if not html_path or not console.is_interactive:
+        return
+    if Confirm.ask("Open HTML report?", default=False, console=console):
+        webbrowser.open(html_path.resolve().as_uri())
 
 
 def _profile_name(args: Any) -> str:
