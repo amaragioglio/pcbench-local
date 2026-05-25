@@ -59,7 +59,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     except KeyboardInterrupt:
         cleanup_disk_temp_file()
         logger.warning("run_cancelled")
-        console.print("[warn]CANCEL[/warn] [muted]Ejecucion cancelada. Temporales limpiados.[/muted]")
+        console.print("[warn]CANCEL[/warn] [muted]Execution cancelled. Temporary files cleaned.[/muted]")
         return {"json": None, "html": None, "document": None, "markdown": None, "supabase": None}
     finally:
         signal.signal(signal.SIGINT, previous_handler)
@@ -96,8 +96,8 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
     system_info = _safe_step(
         console,
         logger,
-        f"[{step}/{total_steps}] SYSINFO // fingerprint local",
-        lambda emit: _with_events(emit, logger, ["Consultando OS, CPU, RAM, discos e IP"], collect_basic_system_info),
+        f"[{step}/{total_steps}] SYSINFO // local fingerprint",
+        lambda emit: _with_events(emit, logger, ["Reading OS, CPU, RAM, disks and IP"], collect_basic_system_info),
     )
     report["results"]["system_info"] = system_info
 
@@ -107,11 +107,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
         memory_benchmark = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] RAM // asignacion y ancho de banda",
+            f"[{step}/{total_steps}] RAM // allocation and bandwidth",
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Calculando limite seguro", "Ejecutando asignacion progresiva", "Midiendo lectura/escritura"],
+                ["Calculating safe limit", "Running progressive allocation", "Measuring read/write bandwidth"],
                 lambda: run_memory_benchmark(args.ram_mib),
             ),
         )
@@ -127,7 +127,7 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
             lambda emit: _with_events(
                 emit,
                 logger,
-                [f"Preparando carga de {args.cpu_seconds}s", "Ejecutando single-core", "Ejecutando multi-core"],
+                [f"Preparing {args.cpu_seconds}s workload", "Running single-core", "Running multi-core"],
                 lambda: run_cpu_benchmark(args.cpu_seconds),
             ),
         )
@@ -139,11 +139,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
         disk_benchmark = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] DISK // lectura escritura latencia",
+            f"[{step}/{total_steps}] DISK // read write latency",
             lambda emit: _with_events(
                 emit,
                 logger,
-                [f"Creando archivo temporal de {args.disk_mib} MiB", "Midiendo escritura", "Midiendo lectura", "Limpiando temporal"],
+                [f"Creating {args.disk_mib} MiB temp file", "Measuring write", "Measuring read", "Cleaning temporary file"],
                 lambda: run_disk_benchmark(args.disk_mib),
             ),
         )
@@ -159,7 +159,7 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
             lambda emit: _with_events(
                 emit,
                 logger,
-                [f"Ping a {args.ping_host}", f"Resolviendo DNS {args.dns_host}", "Probando conexion TCP"],
+                [f"Pinging {args.ping_host}", f"Resolving DNS {args.dns_host}", "Testing TCP connectivity"],
                 lambda: run_network_benchmark(args.ping_host, args.dns_host, args.speedtest),
             ),
         )
@@ -171,11 +171,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
         gpu_benchmark = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] GPU // driver vram sensores",
+            f"[{step}/{total_steps}] GPU // driver vram sensors",
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Consultando WMI", "Consultando GPUtil", "Consultando nvidia-smi si existe"],
+                ["Querying WMI", "Querying GPUtil", "Querying nvidia-smi when available"],
                 run_gpu_benchmark,
             ),
         )
@@ -187,11 +187,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
         security_audit = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] SEC // auditoria local",
+            f"[{step}/{total_steps}] SEC // local audit",
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Detectando plataforma", "Consultando firewall/seguridad", "Enumerando puertos y conexiones", "Revisando usuarios y servicios"],
+                ["Detecting platform", "Checking firewall/security", "Enumerating ports and connections", "Reviewing users and services"],
                 run_security_audit,
             ),
         )

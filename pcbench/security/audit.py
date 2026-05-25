@@ -41,9 +41,9 @@ def run_security_audit() -> dict[str, Any]:
         "findings": findings,
         "summary": _summarize_findings(findings),
         "notes": [
-            "Auditoria local de solo lectura.",
-            "No explota vulnerabilidades ni modifica configuracion del sistema.",
-            "Ejecutar como administrador puede exponer mas datos de procesos, puertos y seguridad.",
+            "Read-only local audit.",
+            "Does not exploit vulnerabilities or modify system configuration.",
+            "Running as administrator can expose more process, port and security details.",
         ],
     }
 
@@ -187,40 +187,40 @@ def _build_findings(
         findings.append(
             {
                 "severity": "warning",
-                "area": "Privilegios",
-                "message": "Auditoria ejecutada sin permisos de administrador; algunos datos pueden ser parciales.",
+                "area": "Privileges",
+                "message": "Audit ran without administrator privileges; some data may be partial.",
             }
         )
 
     if defender.get("status") != "passed":
-        findings.append({"severity": "warning", "area": "Defender", "message": "No se pudo consultar Windows Defender."})
+        findings.append({"severity": "warning", "area": "Defender", "message": "Could not query Windows Defender."})
     else:
         if not defender_data.get("AntivirusEnabled"):
-            findings.append({"severity": "warning", "area": "Defender", "message": "Antivirus desactivado."})
+            findings.append({"severity": "warning", "area": "Defender", "message": "Antivirus is disabled."})
         if not defender_data.get("RealTimeProtectionEnabled"):
-            findings.append({"severity": "warning", "area": "Defender", "message": "Proteccion en tiempo real desactivada."})
+            findings.append({"severity": "warning", "area": "Defender", "message": "Real-time protection is disabled."})
         if defender_data.get("AntivirusEnabled") and defender_data.get("RealTimeProtectionEnabled"):
-            findings.append({"severity": "ok", "area": "Defender", "message": "Antivirus y proteccion en tiempo real activos."})
+            findings.append({"severity": "ok", "area": "Defender", "message": "Antivirus and real-time protection are enabled."})
 
     firewall_profiles = firewall.get("data") if firewall.get("status") == "passed" else []
     disabled_profiles = [profile.get("Name") for profile in firewall_profiles if not profile.get("Enabled")]
     if firewall.get("status") != "passed":
-        findings.append({"severity": "warning", "area": "Firewall", "message": "No se pudo consultar firewall."})
+        findings.append({"severity": "warning", "area": "Firewall", "message": "Could not query firewall."})
     elif disabled_profiles:
-        findings.append({"severity": "warning", "area": "Firewall", "message": f"Perfiles desactivados: {', '.join(disabled_profiles)}."})
+        findings.append({"severity": "warning", "area": "Firewall", "message": f"Disabled profiles: {', '.join(disabled_profiles)}."})
     else:
-        findings.append({"severity": "ok", "area": "Firewall", "message": "Todos los perfiles consultados estan activos."})
+        findings.append({"severity": "ok", "area": "Firewall", "message": "All queried firewall profiles are enabled."})
 
     admins = local_admins.get("data") or []
     if len(admins) > 2:
-        findings.append({"severity": "info", "area": "Administradores", "message": f"{len(admins)} miembros en administradores locales."})
+        findings.append({"severity": "info", "area": "Administrators", "message": f"{len(admins)} local administrator members."})
 
     exposed = sorted({row["port"] for row in listening_ports if row["is_common_exposed_port"]})
     if exposed:
         ports = ", ".join(str(port) for port in exposed[:12])
-        findings.append({"severity": "info", "area": "Puertos", "message": f"Puertos comunes en escucha: {ports}."})
+        findings.append({"severity": "info", "area": "Ports", "message": f"Common listening ports: {ports}."})
     else:
-        findings.append({"severity": "ok", "area": "Puertos", "message": "No se detectaron puertos comunes expuestos en escucha."})
+        findings.append({"severity": "ok", "area": "Ports", "message": "No common exposed listening ports detected."})
 
     return findings
 

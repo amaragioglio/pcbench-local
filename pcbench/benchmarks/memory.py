@@ -28,8 +28,8 @@ def run_memory_benchmark(requested_mib: int | None = None) -> dict[str, Any]:
         "allocation": allocation_results,
         "bandwidth": bandwidth_results,
         "notes": [
-            "Esta prueba valida asignacion y velocidad aproximada desde Python.",
-            "No reemplaza una prueba profunda tipo MemTest86 para errores fisicos de RAM.",
+            "This test validates allocation and approximate bandwidth from Python.",
+            "It does not replace a deep MemTest86-style physical RAM error test.",
         ],
     }
 

@@ -15,7 +15,7 @@ def test_linux_findings_include_firewall_warning() -> None:
 
     assert summary["warning"] == 1
     assert any(finding["area"] == "Firewall" for finding in findings)
-    assert any(finding["area"] == "Contenedor" for finding in findings)
+    assert any(finding["area"] == "Container" for finding in findings)
 
 
 def test_linux_findings_mark_limited_privileges() -> None:
@@ -28,4 +28,4 @@ def test_linux_findings_mark_limited_privileges() -> None:
         container={"detected": False},
     )
 
-    assert any(finding["area"] == "Privilegios" and finding["severity"] == "warning" for finding in findings)
+    assert any(finding["area"] == "Privileges" and finding["severity"] == "warning" for finding in findings)

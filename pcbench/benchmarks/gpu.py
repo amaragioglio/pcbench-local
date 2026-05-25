@@ -20,8 +20,8 @@ def run_gpu_benchmark() -> dict[str, Any]:
         "gputil_error": gputil_error,
         "nvidia_smi": nvidia_smi,
         "notes": [
-            "Inventario de GPU y metricas disponibles del driver.",
-            "Esta fase aun no ejecuta carga grafica pesada.",
+            "GPU inventory and driver-exposed metrics.",
+            "This phase does not run a heavy graphics workload yet.",
         ],
     }
 

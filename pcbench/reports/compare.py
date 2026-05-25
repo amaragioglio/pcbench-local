@@ -10,13 +10,13 @@ from pcbench.reports.paths import resolve_reports_dir
 METRICS = [
     ("CPU single-core", ("results", "cpu_benchmark", "score", "single_core"), "higher"),
     ("CPU multi-core", ("results", "cpu_benchmark", "score", "multi_core"), "higher"),
-    ("RAM lectura", ("results", "memory_benchmark", "bandwidth", "read_mib_per_second"), "higher"),
-    ("RAM escritura", ("results", "memory_benchmark", "bandwidth", "write_mib_per_second"), "higher"),
-    ("Disco lectura", ("results", "disk_benchmark", "read", "mib_per_second"), "higher"),
-    ("Disco escritura", ("results", "disk_benchmark", "write", "mib_per_second"), "higher"),
-    ("Disco latencia", ("results", "disk_benchmark", "latency", "average_ms"), "lower"),
+    ("RAM read", ("results", "memory_benchmark", "bandwidth", "read_mib_per_second"), "higher"),
+    ("RAM write", ("results", "memory_benchmark", "bandwidth", "write_mib_per_second"), "higher"),
+    ("Disk read", ("results", "disk_benchmark", "read", "mib_per_second"), "higher"),
+    ("Disk write", ("results", "disk_benchmark", "write", "mib_per_second"), "higher"),
+    ("Disk latency", ("results", "disk_benchmark", "latency", "average_ms"), "lower"),
     ("Ping", ("results", "network_benchmark", "ping", "average_ms"), "lower"),
-    ("Seguridad warnings", ("results", "security_audit", "summary", "warning"), "lower"),
+    ("Security warnings", ("results", "security_audit", "summary", "warning"), "lower"),
 ]
 
 
@@ -31,8 +31,8 @@ def latest_json_reports(limit: int = 2, profile: str | None = None, output_dir: 
 def compare_latest_reports(profile: str | None = None, output_dir: Path | str | None = None) -> dict[str, Any]:
     paths = latest_json_reports(2, profile, output_dir)
     if len(paths) < 2:
-        suffix = f" para perfil {profile}" if profile else ""
-        return {"status": "failed", "error": f"Se necesitan al menos dos reportes JSON{suffix}.", "paths": paths}
+        suffix = f" for profile {profile}" if profile else ""
+        return {"status": "failed", "error": f"At least two JSON reports are required{suffix}.", "paths": paths}
     return compare_reports(paths[0], paths[1])
 
 
@@ -57,11 +57,11 @@ def compare_reports(base_path: Path, current_path: Path) -> dict[str, Any]:
 
 def _compare_metric(label: str, before: Any, after: Any, direction: str) -> dict[str, Any]:
     if not isinstance(before, (int, float)) or not isinstance(after, (int, float)):
-        return {"metric": label, "before": before, "after": after, "delta": None, "percent": None, "result": "sin datos"}
+        return {"metric": label, "before": before, "after": after, "delta": None, "percent": None, "result": "no data"}
     delta = round(after - before, 3)
     percent = round((delta / before) * 100, 2) if before else None
     improved = delta > 0 if direction == "higher" else delta < 0
-    result = "mejor" if improved else "peor" if delta else "igual"
+    result = "better" if improved else "worse" if delta else "same"
     return {"metric": label, "before": before, "after": after, "delta": delta, "percent": percent, "result": result}
 
 

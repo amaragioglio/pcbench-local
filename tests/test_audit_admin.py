@@ -10,4 +10,4 @@ def test_windows_findings_mark_limited_privileges() -> None:
         listening_ports=[],
     )
 
-    assert any(finding["area"] == "Privilegios" and finding["severity"] == "warning" for finding in findings)
+    assert any(finding["area"] == "Privileges" and finding["severity"] == "warning" for finding in findings)

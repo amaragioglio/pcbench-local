@@ -110,7 +110,7 @@ def _gpu_score(data: dict | None) -> MetricRow | None:
         return _row("GPU", score, detail)
     detected = data.get("detected_count", 0)
     score = 55 if detected else 0
-    return _row("GPU", score, f"{detected} GPU(s) detectadas; sensores no disponibles")
+    return _row("GPU", score, f"{detected} GPU(s) detected; sensors unavailable")
 
 
 def _security_score(data: dict | None) -> MetricRow | None:

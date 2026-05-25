@@ -42,7 +42,7 @@ def run_cpu_benchmark(duration_seconds: int = DEFAULT_SECONDS) -> dict[str, Any]
         },
         "notes": [
             "Score local basado en operaciones enteras por segundo.",
-            "Sirve para comparar ejecuciones en esta misma herramienta, no reemplaza Cinebench.",
+            "Useful for comparing runs inside this tool; it does not replace Cinebench.",
         ],
     }
 

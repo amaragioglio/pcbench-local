@@ -14,7 +14,7 @@ def test_compare_reports_detects_profile_warning(tmp_path: Path) -> None:
 
     assert result["status"] == "passed"
     assert result["profile_warning"] is True
-    assert result["rows"][0]["result"] == "mejor"
+    assert result["rows"][0]["result"] == "better"
 
 
 def _report(profile: str, single_core: int) -> dict:
