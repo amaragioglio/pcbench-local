@@ -4,13 +4,14 @@ from collections.abc import Callable
 from datetime import datetime
 import logging
 from pathlib import Path
+import signal
 from typing import Any
 
 from rich.console import Console
 
 from pcbench import __version__
 from pcbench.benchmarks.cpu import run_cpu_benchmark
-from pcbench.benchmarks.disk import run_disk_benchmark
+from pcbench.benchmarks.disk import cleanup_disk_temp_file, run_disk_benchmark
 from pcbench.benchmarks.gpu import run_gpu_benchmark
 from pcbench.benchmarks.memory import run_memory_benchmark
 from pcbench.benchmarks.network import run_network_benchmark
@@ -49,6 +50,20 @@ def _safe_step(
 
 def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     logger = setup_file_logger()
+    previous_handler = signal.getsignal(signal.SIGINT)
+    signal.signal(signal.SIGINT, _build_sigint_handler(logger))
+    try:
+        return _run_benchmarks(args, console, logger)
+    except KeyboardInterrupt:
+        cleanup_disk_temp_file()
+        logger.warning("run_cancelled")
+        console.print("[warn]CANCEL[/warn] [muted]Ejecucion cancelada. Temporales limpiados.[/muted]")
+        return {"json": None, "html": None, "document": None, "markdown": None, "supabase": None}
+    finally:
+        signal.signal(signal.SIGINT, previous_handler)
+
+
+def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict[str, Path | None]:
     started_at = datetime.now().astimezone()
     profile = _profile_name(args)
     logger.info(
@@ -231,6 +246,15 @@ def _with_events(emit: Emit, logger: logging.Logger, messages: list[str], task: 
         logger.info("event message=%s", message)
         emit(message)
     return task()
+
+
+def _build_sigint_handler(logger: logging.Logger) -> Callable[[int, Any], None]:
+    def handler(signum: int, frame: Any) -> None:
+        cleanup_disk_temp_file()
+        logger.warning("sigint_received signum=%s", signum)
+        raise KeyboardInterrupt
+
+    return handler
 
 
 def _profile_name(args: Any) -> str:

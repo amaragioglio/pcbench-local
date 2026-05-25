@@ -31,6 +31,8 @@ Use `--sanitize` when generating reports that will be shared, uploaded, or impor
 
 Runtime logs are written to `reports/pcbench.log` with simple rotation. Logs are local-only and ignored by Git; they are intended for troubleshooting module start, finish, artifacts, and failures.
 
+If execution is interrupted with `Ctrl+C`, PCBench attempts to remove the disk benchmark temporary file before exiting.
+
 ## Design Rules
 
 - Do not add network upload behavior by default.
