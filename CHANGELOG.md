@@ -32,3 +32,4 @@
 - Added Phase 4 UX: numbered wizard, Windows setup launcher, HTML open prompt and optional UAC elevation.
 - Replaced GPUtil/py3nvml with NVIDIA NVML bindings through `nvidia-ml-py`.
 - Removed `speedtest-cli` from core dependencies; `--speedtest` is now optional.
+- Added PyInstaller spec and tag-driven Windows release workflow.

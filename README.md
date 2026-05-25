@@ -61,6 +61,14 @@ python3 -m venv .venv
 
 ## Usage
 
+## Download
+
+Tagged releases build a standalone Windows executable named `pcbench-<version>-windows.exe`.
+
+Until the first release is tagged, run from source with the commands below.
+
+Unsigned Windows binaries may trigger SmartScreen. If that happens, choose **More info** and **Run anyway**, or build from source locally.
+
 Recommended interactive mode:
 
 ```powershell
