@@ -29,6 +29,8 @@ Generated reports may include local hardware details, usernames, IP addresses, l
 
 Use `--sanitize` when generating reports that will be shared, uploaded, or imported into an external database. Sanitized reports replace hostnames, IP addresses, usernames, command paths, and connection endpoints with deterministic truncated hash tokens.
 
+Runtime logs are written to `reports/pcbench.log` with simple rotation. Logs are local-only and ignored by Git; they are intended for troubleshooting module start, finish, artifacts, and failures.
+
 ## Design Rules
 
 - Do not add network upload behavior by default.

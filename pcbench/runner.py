@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from datetime import datetime
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ from pcbench.benchmarks.gpu import run_gpu_benchmark
 from pcbench.benchmarks.memory import run_memory_benchmark
 from pcbench.benchmarks.network import run_network_benchmark
 from pcbench.benchmarks.system_info import collect_basic_system_info
+from pcbench.logging_setup import setup_file_logger
 from pcbench.reports.html_report import save_html_report
 from pcbench.reports.docx_report import save_docx_report
 from pcbench.reports.json_report import save_json_report
@@ -30,23 +32,36 @@ Emit = Callable[[str], None]
 
 def _safe_step(
     console: Console,
+    logger: logging.Logger,
     title: str,
     task: Callable[[Callable[[str], None]], Any],
 ) -> Any:
+    logger.info("step_start title=%s", title)
     try:
-        return run_step(console, title, task)
-    except Exception as error:  # noqa: BLE001 — we want any module failure isolated.
+        result = run_step(console, title, task)
+        logger.info("step_ok title=%s", title)
+        return result
+    except Exception as error:  # noqa: BLE001 - keep module failures isolated.
+        logger.exception("step_failed title=%s error=%s", title, error)
         console.print(f"[warn]FAIL[/warn] [muted]{title}[/muted] :: {type(error).__name__}: {error}")
         return {"status": "failed", "error": f"{type(error).__name__}: {error}"}
 
 
 def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
+    logger = setup_file_logger()
     started_at = datetime.now().astimezone()
+    profile = _profile_name(args)
+    logger.info(
+        "run_start profile=%s sanitize=%s reports=%s",
+        profile,
+        getattr(args, "sanitize", False),
+        getattr(args, "reports", None),
+    )
     report: dict[str, Any] = {
         "tool": "pcbench-local",
         "version": __version__,
         "started_at": started_at.isoformat(),
-        "profile": _profile_name(args),
+        "profile": profile,
         "results": {},
     }
 
@@ -63,8 +78,9 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
 
     system_info = _safe_step(
         console,
+        logger,
         f"[{step}/{total_steps}] SYSINFO // fingerprint local",
-        lambda emit: _with_events(emit, ["Consultando OS, CPU, RAM, discos e IP"], collect_basic_system_info),
+        lambda emit: _with_events(emit, logger, ["Consultando OS, CPU, RAM, discos e IP"], collect_basic_system_info),
     )
     report["results"]["system_info"] = system_info
 
@@ -73,9 +89,11 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         step += 1
         memory_benchmark = _safe_step(
             console,
+            logger,
             f"[{step}/{total_steps}] RAM // asignacion y ancho de banda",
             lambda emit: _with_events(
                 emit,
+                logger,
                 ["Calculando limite seguro", "Ejecutando asignacion progresiva", "Midiendo lectura/escritura"],
                 lambda: run_memory_benchmark(args.ram_mib),
             ),
@@ -87,9 +105,11 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         step += 1
         cpu_benchmark = _safe_step(
             console,
+            logger,
             f"[{step}/{total_steps}] CPU // single-core + multi-core",
             lambda emit: _with_events(
                 emit,
+                logger,
                 [f"Preparando carga de {args.cpu_seconds}s", "Ejecutando single-core", "Ejecutando multi-core"],
                 lambda: run_cpu_benchmark(args.cpu_seconds),
             ),
@@ -101,9 +121,11 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         step += 1
         disk_benchmark = _safe_step(
             console,
+            logger,
             f"[{step}/{total_steps}] DISK // lectura escritura latencia",
             lambda emit: _with_events(
                 emit,
+                logger,
                 [f"Creando archivo temporal de {args.disk_mib} MiB", "Midiendo escritura", "Midiendo lectura", "Limpiando temporal"],
                 lambda: run_disk_benchmark(args.disk_mib),
             ),
@@ -115,9 +137,11 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         step += 1
         network_benchmark = _safe_step(
             console,
+            logger,
             f"[{step}/{total_steps}] NET // ping dns tcp",
             lambda emit: _with_events(
                 emit,
+                logger,
                 [f"Ping a {args.ping_host}", f"Resolviendo DNS {args.dns_host}", "Probando conexion TCP"],
                 lambda: run_network_benchmark(args.ping_host, args.dns_host, args.speedtest),
             ),
@@ -129,9 +153,11 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         step += 1
         gpu_benchmark = _safe_step(
             console,
+            logger,
             f"[{step}/{total_steps}] GPU // driver vram sensores",
             lambda emit: _with_events(
                 emit,
+                logger,
                 ["Consultando WMI", "Consultando GPUtil", "Consultando nvidia-smi si existe"],
                 run_gpu_benchmark,
             ),
@@ -143,9 +169,11 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         step += 1
         security_audit = _safe_step(
             console,
+            logger,
             f"[{step}/{total_steps}] SEC // auditoria local",
             lambda emit: _with_events(
                 emit,
+                logger,
                 ["Detectando plataforma", "Consultando firewall/seguridad", "Enumerando puertos y conexiones", "Revisando usuarios y servicios"],
                 run_security_audit,
             ),
@@ -165,14 +193,19 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         selected_reports = _selected_reports(args)
         if "json" in selected_reports:
             json_path = save_json_report(report_to_save)
+            logger.info("artifact_json path=%s", json_path)
         if "html" in selected_reports:
             html_path = save_html_report(report_to_save, json_path)
+            logger.info("artifact_html path=%s", html_path)
         if "docx" in selected_reports:
             document_path = save_docx_report(report_to_save)
+            logger.info("artifact_docx path=%s", document_path)
         if "md" in selected_reports:
             markdown_path = save_markdown_report(report_to_save)
+            logger.info("artifact_markdown path=%s", markdown_path)
         if "supabase" in selected_reports:
             supabase_path = save_supabase_report(report_to_save)
+            logger.info("artifact_supabase path=%s", supabase_path)
 
     print_report_summary(
         console,
@@ -189,11 +222,13 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         markdown_path,
         supabase_path,
     )
+    logger.info("run_finish profile=%s", report["profile"])
     return {"json": json_path, "html": html_path, "document": document_path, "markdown": markdown_path, "supabase": supabase_path}
 
 
-def _with_events(emit: Emit, messages: list[str], task: Callable[[], Any]) -> Any:
+def _with_events(emit: Emit, logger: logging.Logger, messages: list[str], task: Callable[[], Any]) -> Any:
     for message in messages:
+        logger.info("event message=%s", message)
         emit(message)
     return task()
 

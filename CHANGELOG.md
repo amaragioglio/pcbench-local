@@ -23,3 +23,4 @@
 - Added Linux read-only security audit.
 - Added `--sanitize` report mode for shareable reports without raw hostnames, IPs, users, commands, or endpoints.
 - Added privilege-scope detection and partial security audit markers.
+- Added local rotating runtime log at `reports/pcbench.log`.

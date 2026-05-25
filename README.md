@@ -26,6 +26,7 @@ La interfaz esta pensada para terminal: logs en vivo, barras de metricas y repor
 - No hay subida automatica de datos.
 - Usa `--sanitize` para guardar reportes compartibles sin hostnames, IPs, usuarios o comandos en claro.
 - Si no ejecutas como administrador/root, la auditoria marca `partial: true` porque algunos datos pueden estar limitados.
+- La ejecucion deja trazabilidad local en `reports/pcbench.log`, tambien ignorado por Git.
 - Ver [SECURITY.md](SECURITY.md) para reglas y alcance.
 
 ## Instalacion Local
