@@ -177,7 +177,7 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Querying WMI", "Querying GPUtil", "Querying nvidia-smi when available"],
+                ["Querying WMI", "Querying NVIDIA NVML", "Querying nvidia-smi when available"],
                 run_gpu_benchmark,
             ),
         )

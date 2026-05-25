@@ -9,15 +9,15 @@ BYTES_IN_MIB = 1024**2
 
 def run_gpu_benchmark() -> dict[str, Any]:
     wmi_gpus, wmi_error = _collect_wmi_gpus()
-    gputil_gpus, gputil_error = _collect_gputil_gpus()
+    nvml_gpus, nvml_error = _collect_nvml_gpus()
     nvidia_smi = _collect_nvidia_smi()
 
     return {
-        "detected_count": len(wmi_gpus) or len(gputil_gpus),
+        "detected_count": len(wmi_gpus) or len(nvml_gpus),
         "wmi": wmi_gpus,
         "wmi_error": wmi_error,
-        "gputil": gputil_gpus,
-        "gputil_error": gputil_error,
+        "nvml": nvml_gpus,
+        "nvml_error": nvml_error,
         "nvidia_smi": nvidia_smi,
         "notes": [
             "GPU inventory and driver-exposed metrics.",
@@ -58,31 +58,37 @@ def _collect_wmi_gpus() -> tuple[list[dict[str, Any]], str | None]:
     return gpus, None
 
 
-def _collect_gputil_gpus() -> tuple[list[dict[str, Any]], str | None]:
+def _collect_nvml_gpus() -> tuple[list[dict[str, Any]], str | None]:
     try:
-        import GPUtil
+        import pynvml
 
-        gpus = GPUtil.getGPUs()
+        pynvml.nvmlInit()
+        count = pynvml.nvmlDeviceGetCount()
+        driver = _decode(pynvml.nvmlSystemGetDriverVersion())
+        gpus = []
+        for index in range(count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(index)
+            memory = pynvml.nvmlDeviceGetMemoryInfo(handle)
+            utilization = _safe_nvml_call(lambda: pynvml.nvmlDeviceGetUtilizationRates(handle))
+            temperature = _safe_nvml_call(lambda: pynvml.nvmlDeviceGetTemperature(handle, pynvml.NVML_TEMPERATURE_GPU))
+            gpus.append(
+                {
+                    "id": index,
+                    "name": _decode(pynvml.nvmlDeviceGetName(handle)),
+                    "driver": driver,
+                    "load_percent": getattr(utilization, "gpu", None),
+                    "memory_total_mib": _bytes_to_mib(memory.total),
+                    "memory_used_mib": _bytes_to_mib(memory.used),
+                    "memory_free_mib": _bytes_to_mib(memory.free),
+                    "temperature_c": temperature,
+                    "uuid": _decode(_safe_nvml_call(lambda: pynvml.nvmlDeviceGetUUID(handle))),
+                }
+            )
+        pynvml.nvmlShutdown()
     except Exception as error:
         return [], str(error)
 
-    return (
-        [
-            {
-                "id": gpu.id,
-                "name": gpu.name,
-                "driver": gpu.driver,
-                "load_percent": round(gpu.load * 100, 2),
-                "memory_total_mib": gpu.memoryTotal,
-                "memory_used_mib": gpu.memoryUsed,
-                "memory_free_mib": gpu.memoryFree,
-                "temperature_c": gpu.temperature,
-                "uuid": gpu.uuid,
-            }
-            for gpu in gpus
-        ],
-        None,
-    )
+    return gpus, None
 
 
 def _collect_nvidia_smi() -> dict[str, Any]:
@@ -152,3 +158,18 @@ def _bytes_to_mib(value: int | None) -> int | None:
     if value is None:
         return None
     return round(value / BYTES_IN_MIB)
+
+
+def _safe_nvml_call(call: Any) -> Any:
+    try:
+        return call()
+    except Exception:
+        return None
+
+
+def _decode(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)

@@ -172,7 +172,13 @@ def _tcp_connectivity_check(host: str, port: int) -> dict[str, Any]:
 def _run_speedtest() -> dict[str, Any]:
     try:
         import speedtest
+    except ImportError:
+        return {
+            "status": "failed",
+            "error": "speedtest-cli is optional. Install it manually to use --speedtest.",
+        }
 
+    try:
         test = speedtest.Speedtest()
         test.get_best_server()
         download_bps = test.download()
