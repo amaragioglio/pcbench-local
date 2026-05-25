@@ -144,11 +144,15 @@ def print_report_summary(
         console.print()
         console.print("[accent]SEGURIDAD[/accent]")
         summary = security_audit["summary"]
+        if security_audit.get("partial"):
+            _metric(console, "Alcance", "parcial: ejecuta como admin/root para mas detalle", "warn")
         _bar_metric(console, "Warnings", summary["warning"], "", max(summary["warning"], 5), lower_is_better=True)
         _kv(console, "Puertos escucha", len(security_audit["listening_ports"]))
         _kv(console, "Conexiones activas", security_audit["active_connections"]["established_count"])
         if security_audit.get("platform"):
             _kv(console, "Plataforma audit", security_audit["platform"])
+        if security_audit.get("privileges"):
+            _kv(console, "Privilegios", security_audit["privileges"].get("scope", "unknown"))
         if "local_admins" in security_audit:
             local_admins = security_audit["local_admins"].get("data") or []
             _kv(console, "Admins locales", len(local_admins))

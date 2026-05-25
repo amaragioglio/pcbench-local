@@ -10,6 +10,8 @@ This project is a local diagnostic and benchmark tool. It should not collect sec
 
 The security audit module is read-only by design. It checks local configuration such as firewall state, Defender status, listening ports, startup entries, and local administrators.
 
+When the tool is not running with administrator/root privileges, audit output is marked with `partial: true` and a privileges finding. The tool still runs read-only checks, but process, port, service, or security-provider details may be incomplete.
+
 ## Reporting a Vulnerability
 
 For private repositories, report issues directly to the repository owner.
