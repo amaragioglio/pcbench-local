@@ -21,3 +21,4 @@
 - Added Windows launcher script.
 - Added wizard presets and execution confirmation.
 - Added Linux read-only security audit.
+- Added `--sanitize` report mode for shareable reports without raw hostnames, IPs, users, commands, or endpoints.

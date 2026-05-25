@@ -19,6 +19,7 @@ from pcbench.reports.docx_report import save_docx_report
 from pcbench.reports.json_report import save_json_report
 from pcbench.reports.markdown_report import save_markdown_report
 from pcbench.reports.metrics import build_dashboard
+from pcbench.reports.sanitize import sanitize_report
 from pcbench.reports.supabase_report import save_supabase_report
 from pcbench.security.audit import run_security_audit
 from pcbench.terminal_ui import print_report_summary, run_step
@@ -160,17 +161,18 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     markdown_path = None
     supabase_path = None
     if not args.no_save:
+        report_to_save = sanitize_report(report) if getattr(args, "sanitize", False) else report
         selected_reports = _selected_reports(args)
         if "json" in selected_reports:
-            json_path = save_json_report(report)
+            json_path = save_json_report(report_to_save)
         if "html" in selected_reports:
-            html_path = save_html_report(report, json_path)
+            html_path = save_html_report(report_to_save, json_path)
         if "docx" in selected_reports:
-            document_path = save_docx_report(report)
+            document_path = save_docx_report(report_to_save)
         if "md" in selected_reports:
-            markdown_path = save_markdown_report(report)
+            markdown_path = save_markdown_report(report_to_save)
         if "supabase" in selected_reports:
-            supabase_path = save_supabase_report(report)
+            supabase_path = save_supabase_report(report_to_save)
 
     print_report_summary(
         console,

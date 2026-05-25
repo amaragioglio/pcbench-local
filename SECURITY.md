@@ -25,6 +25,8 @@ When reporting, include:
 
 Generated reports may include local hardware details, usernames, IP addresses, listening ports, process names, and security configuration summaries. Reports are ignored by Git via `/reports/` and should be reviewed before sharing publicly.
 
+Use `--sanitize` when generating reports that will be shared, uploaded, or imported into an external database. Sanitized reports replace hostnames, IP addresses, usernames, command paths, and connection endpoints with deterministic truncated hash tokens.
+
 ## Design Rules
 
 - Do not add network upload behavior by default.
