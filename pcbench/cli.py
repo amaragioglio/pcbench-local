@@ -9,6 +9,7 @@ from pcbench.elevation import is_windows_admin, relaunch_elevated
 from pcbench.history import latest_runs
 from pcbench.reports.compare import compare_latest_reports, compare_reports
 from pcbench.runner import run_benchmarks
+from pcbench.scheduler import schedule_weekly
 from pcbench.terminal_ui import build_console, print_comparison, print_header
 from pcbench.wizard import configure_interactive
 
@@ -26,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("run", "compare", "wizard", "history"),
+        choices=("run", "compare", "wizard", "history", "schedule"),
         default="run",
         help="Command to run. Default: run.",
     )
@@ -159,6 +160,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=10,
         help="Number of history rows to show.",
     )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the schedule command without installing it.",
+    )
     return parser
 
 
@@ -186,6 +192,10 @@ def main() -> None:
         _print_history(console, latest_runs(args.limit, args.output_dir))
         return
 
+    if args.command == "schedule":
+        _print_schedule_result(console, schedule_weekly(args))
+        return
+
     if args.command == "wizard":
         configured = configure_interactive(args, console)
         if configured is None:
@@ -209,6 +219,20 @@ def _print_history(console: Any, rows: list[dict[str, Any]]) -> None:
             f"[value]{row.get('profile')}[/value] "
             f"[muted]{row.get('overall_score')} {row.get('overall_status')}{sanitized}[/muted]"
         )
+
+
+def _print_schedule_result(console: Any, result: dict[str, Any]) -> None:
+    status = result.get("status")
+    style = "ok" if status in {"passed", "dry_run", "manual"} else "warn"
+    console.print()
+    console.print("[accent]SCHEDULE[/accent]")
+    console.print(f"[{style}]Status:[/{style}] {status}")
+    console.print(f"[label]Platform[/label] :: {result.get('platform')}")
+    console.print(f"[label]Command[/label]  :: {result.get('command')}")
+    if result.get("message"):
+        console.print(f"[muted]{result['message']}[/muted]")
+    if result.get("stderr"):
+        console.print(f"[warn]{result['stderr']}[/warn]")
 
 
 def _apply_profile(args: argparse.Namespace) -> None:
