@@ -129,6 +129,12 @@ Compare specific files:
 .\.venv\Scripts\python.exe main.py compare --base reports\old.json --current reports\new.json
 ```
 
+Show local SQLite history:
+
+```powershell
+.\.venv\Scripts\python.exe main.py history --limit 10
+```
+
 ## Options
 
 ```powershell
@@ -164,6 +170,7 @@ Generated artifacts:
 - `pcbench_report_*.md`: Markdown summary for GitHub.
 - `pcbench_supabase_*.json`: flat payload for Supabase.
 - `pcbench.log`: local rotating runtime log.
+- `pcbench_history.sqlite`: local SQLite history for runs, metrics and findings.
 
 ### Supabase JSON
 

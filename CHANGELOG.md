@@ -33,3 +33,4 @@
 - Replaced GPUtil/py3nvml with NVIDIA NVML bindings through `nvidia-ml-py`.
 - Removed `speedtest-cli` from core dependencies; `--speedtest` is now optional.
 - Added PyInstaller spec and tag-driven Windows release workflow.
+- Added local SQLite run history with `pcbench history`.

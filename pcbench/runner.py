@@ -18,6 +18,7 @@ from pcbench.benchmarks.gpu import run_gpu_benchmark
 from pcbench.benchmarks.memory import run_memory_benchmark
 from pcbench.benchmarks.network import run_network_benchmark
 from pcbench.benchmarks.system_info import collect_basic_system_info
+from pcbench.history import save_run_to_history
 from pcbench.logging_setup import setup_file_logger
 from pcbench.reports.html_report import save_html_report
 from pcbench.reports.docx_report import save_docx_report
@@ -209,6 +210,8 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_
     supabase_path = None
     if not args.no_save:
         report_to_save = sanitize_report(report) if getattr(args, "sanitize", False) else report
+        history_path = save_run_to_history(report_to_save, output_dir)
+        logger.info("artifact_history path=%s", history_path)
         selected_reports = _selected_reports(args)
         if "json" in selected_reports:
             json_path = save_json_report(report_to_save, output_dir)

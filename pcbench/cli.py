@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
+from typing import Any
 
 from pcbench import __version__
 from pcbench.elevation import is_windows_admin, relaunch_elevated
+from pcbench.history import latest_runs
 from pcbench.reports.compare import compare_latest_reports, compare_reports
 from pcbench.runner import run_benchmarks
 from pcbench.terminal_ui import build_console, print_comparison, print_header
@@ -24,7 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("run", "compare", "wizard"),
+        choices=("run", "compare", "wizard", "history"),
         default="run",
         help="Command to run. Default: run.",
     )
@@ -151,6 +153,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Compare the two latest reports for the selected profile.",
     )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=10,
+        help="Number of history rows to show.",
+    )
     return parser
 
 
@@ -174,6 +182,10 @@ def main() -> None:
             print_comparison(console, compare_latest_reports(args.profile, args.output_dir))
         return
 
+    if args.command == "history":
+        _print_history(console, latest_runs(args.limit, args.output_dir))
+        return
+
     if args.command == "wizard":
         configured = configure_interactive(args, console)
         if configured is None:
@@ -182,6 +194,21 @@ def main() -> None:
         _apply_profile(args)
 
     run_benchmarks(args, console)
+
+
+def _print_history(console: Any, rows: list[dict[str, Any]]) -> None:
+    if not rows:
+        console.print("[warn]No history rows found.[/warn]")
+        return
+    console.print()
+    console.print("[accent]HISTORY[/accent]")
+    for row in rows:
+        sanitized = " sanitized" if row.get("sanitized") else ""
+        console.print(
+            f"[label]{row.get('started_at', '')}[/label] "
+            f"[value]{row.get('profile')}[/value] "
+            f"[muted]{row.get('overall_score')} {row.get('overall_status')}{sanitized}[/muted]"
+        )
 
 
 def _apply_profile(args: argparse.Namespace) -> None:
