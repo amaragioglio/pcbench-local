@@ -9,28 +9,28 @@ from rich.prompt import Confirm, Prompt
 REPORT_CHOICES = {"json", "html", "docx", "md", "supabase"}
 PRESETS = {
     "quick": {
-        "label": "Recon rapido",
+        "label": "Quick scan",
         "profile": "quick",
         "scope": "core",
         "reports": ["json", "html", "md"],
         "speedtest": False,
     },
     "full": {
-        "label": "Diagnostico completo",
+        "label": "Full diagnostic",
         "profile": "full",
         "scope": "all",
         "reports": ["json", "html", "docx", "md"],
         "speedtest": False,
     },
     "supabase": {
-        "label": "Pipeline Supabase",
+        "label": "Supabase pipeline",
         "profile": "quick",
         "scope": "core",
         "reports": ["json", "supabase"],
         "speedtest": False,
     },
     "custom": {
-        "label": "Configuracion manual",
+        "label": "Manual configuration",
         "profile": None,
         "scope": None,
         "reports": None,
@@ -41,22 +41,22 @@ PRESETS = {
 
 def configure_interactive(args: argparse.Namespace, console: Console) -> argparse.Namespace | None:
     console.print()
-    console.print("[accent]PCBENCH WIZARD[/accent] [muted]// configuracion interactiva[/muted]")
-    console.print("[muted]Presets disponibles:[/muted]")
-    console.print("  [label]quick[/label]    Recon rapido: CPU/RAM/DISCO + reportes ligeros")
-    console.print("  [label]full[/label]     Diagnostico completo: todos los modulos")
-    console.print("  [label]supabase[/label] Pipeline Supabase: core + JSON plano")
-    console.print("  [label]custom[/label]   Configuracion manual")
+    console.print("[accent]PCBENCH WIZARD[/accent] [muted]// interactive configuration[/muted]")
+    console.print("[muted]Available presets:[/muted]")
+    console.print("  [label]quick[/label]    Quick scan: CPU/RAM/DISK + lightweight reports")
+    console.print("  [label]full[/label]     Full diagnostic: every module")
+    console.print("  [label]supabase[/label] Supabase pipeline: core + flat JSON")
+    console.print("  [label]custom[/label]   Manual configuration")
 
     preset_name = Prompt.ask("Preset", choices=list(PRESETS), default="quick", console=console)
     preset = PRESETS[preset_name]
 
     if preset_name == "custom":
-        profile = Prompt.ask("Perfil", choices=["quick", "normal", "full"], default="quick", console=console)
-        scope = Prompt.ask("Modulos", choices=["all", "core", "custom"], default="all", console=console)
-        reports = _parse_reports(Prompt.ask("Reportes", default="json,html,docx,md", console=console))
-        sanitize = Confirm.ask("Sanear reportes para compartir?", default=True, console=console)
-        speedtest = Confirm.ask("Incluir speedtest? puede tardar mas", default=False, console=console)
+        profile = Prompt.ask("Profile", choices=["quick", "normal", "full"], default="quick", console=console)
+        scope = Prompt.ask("Modules", choices=["all", "core", "custom"], default="all", console=console)
+        reports = _parse_reports(Prompt.ask("Reports", default="json,html,docx,md", console=console))
+        sanitize = Confirm.ask("Sanitize reports for sharing?", default=True, console=console)
+        speedtest = Confirm.ask("Include speedtest? It can take longer", default=False, console=console)
     else:
         profile = preset["profile"]
         scope = preset["scope"]
@@ -64,12 +64,12 @@ def configure_interactive(args: argparse.Namespace, console: Console) -> argpars
         sanitize = preset_name == "supabase"
         speedtest = bool(preset["speedtest"])
 
-        if Confirm.ask("Ajustar este preset?", default=False, console=console):
-            profile = Prompt.ask("Perfil", choices=["quick", "normal", "full"], default=str(profile), console=console)
-            scope = Prompt.ask("Modulos", choices=["all", "core", "custom"], default=str(scope), console=console)
-            reports = _parse_reports(Prompt.ask("Reportes", default=",".join(reports), console=console))
-            sanitize = Confirm.ask("Sanear reportes para compartir?", default=sanitize, console=console)
-            speedtest = Confirm.ask("Incluir speedtest? puede tardar mas", default=speedtest, console=console)
+        if Confirm.ask("Adjust this preset?", default=False, console=console):
+            profile = Prompt.ask("Profile", choices=["quick", "normal", "full"], default=str(profile), console=console)
+            scope = Prompt.ask("Modules", choices=["all", "core", "custom"], default=str(scope), console=console)
+            reports = _parse_reports(Prompt.ask("Reports", default=",".join(reports), console=console))
+            sanitize = Confirm.ask("Sanitize reports for sharing?", default=sanitize, console=console)
+            speedtest = Confirm.ask("Include speedtest? It can take longer", default=speedtest, console=console)
 
     _apply_profile_choice(args, str(profile))
     _apply_scope_choice(args, str(scope), console)
@@ -79,8 +79,8 @@ def configure_interactive(args: argparse.Namespace, console: Console) -> argpars
     args.speedtest = speedtest
 
     _print_execution_plan(console, preset["label"], str(profile), str(scope), reports, args)
-    if not Confirm.ask("Ejecutar ahora?", default=True, console=console):
-        console.print("[muted]Ejecucion cancelada por el usuario.[/muted]")
+    if not Confirm.ask("Run now?", default=True, console=console):
+        console.print("[muted]Execution cancelled by user.[/muted]")
         return None
 
     return args
@@ -104,12 +104,12 @@ def _apply_scope_choice(args: argparse.Namespace, scope: str, console: Console) 
         args.skip_gpu = True
         args.skip_security = True
     elif scope == "custom":
-        args.skip_ram = not Confirm.ask("Incluir RAM?", default=True, console=console)
-        args.skip_cpu = not Confirm.ask("Incluir CPU?", default=True, console=console)
-        args.skip_disk = not Confirm.ask("Incluir disco?", default=True, console=console)
-        args.skip_network = not Confirm.ask("Incluir red?", default=True, console=console)
-        args.skip_gpu = not Confirm.ask("Incluir GPU?", default=True, console=console)
-        args.skip_security = not Confirm.ask("Incluir seguridad local?", default=False, console=console)
+        args.skip_ram = not Confirm.ask("Include RAM?", default=True, console=console)
+        args.skip_cpu = not Confirm.ask("Include CPU?", default=True, console=console)
+        args.skip_disk = not Confirm.ask("Include disk?", default=True, console=console)
+        args.skip_network = not Confirm.ask("Include network?", default=True, console=console)
+        args.skip_gpu = not Confirm.ask("Include GPU?", default=True, console=console)
+        args.skip_security = not Confirm.ask("Include local security?", default=False, console=console)
 
 
 def _print_execution_plan(
@@ -133,14 +133,14 @@ def _print_execution_plan(
             modules.append(label)
 
     console.print()
-    console.print("[accent]PLAN DE EJECUCION[/accent]")
+    console.print("[accent]EXECUTION PLAN[/accent]")
     console.print(f"[label]Preset[/label]   :: {preset_label}")
-    console.print(f"[label]Perfil[/label]   :: {profile}")
+    console.print(f"[label]Profile[/label]  :: {profile}")
     console.print(f"[label]Scope[/label]    :: {scope}")
-    console.print(f"[label]Modulos[/label]  :: {', '.join(modules)}")
-    console.print(f"[label]Reportes[/label] :: {', '.join(reports) if reports else 'sin reportes'}")
-    console.print(f"[label]Sanitize[/label] :: {'si' if getattr(args, 'sanitize', False) else 'no'}")
-    console.print(f"[label]Speedtest[/label]:: {'si' if args.speedtest else 'no'}")
+    console.print(f"[label]Modules[/label]  :: {', '.join(modules)}")
+    console.print(f"[label]Reports[/label]  :: {', '.join(reports) if reports else 'no reports'}")
+    console.print(f"[label]Sanitize[/label] :: {'yes' if getattr(args, 'sanitize', False) else 'no'}")
+    console.print(f"[label]Speedtest[/label]:: {'yes' if args.speedtest else 'no'}")
 
 
 def _parse_reports(value: str) -> list[str]:

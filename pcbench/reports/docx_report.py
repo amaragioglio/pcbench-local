@@ -6,14 +6,13 @@ from typing import Any
 from xml.sax.saxutils import escape
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from pcbench.reports.paths import ensure_reports_dir
 
-REPORTS_DIR = Path("reports")
 
-
-def save_docx_report(report: dict[str, Any]) -> Path:
-    REPORTS_DIR.mkdir(exist_ok=True)
+def save_docx_report(report: dict[str, Any], output_dir: Path | str | None = None) -> Path:
+    reports_dir = ensure_reports_dir(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = REPORTS_DIR / f"pcbench_report_{timestamp}.docx"
+    path = reports_dir / f"pcbench_report_{timestamp}.docx"
     paragraphs = _build_paragraphs(report)
     with ZipFile(path, "w", compression=ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", _content_types())
@@ -26,9 +25,9 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
     results = report.get("results", {})
     paragraphs = [
         "PCBench Local Report",
-        f"Perfil: {report.get('profile', 'normal')}",
-        f"Inicio: {report.get('started_at', '')}",
-        f"Fin: {report.get('finished_at', '')}",
+        f"Profile: {report.get('profile', 'normal')}",
+        f"Started: {report.get('started_at', '')}",
+        f"Finished: {report.get('finished_at', '')}",
         "",
     ]
     dashboard = report.get("dashboard")
@@ -36,7 +35,7 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
         paragraphs.extend(
             [
                 "Dashboard",
-                f"Score general: {dashboard.get('overall_score')} / 100 {dashboard.get('overall_status')}",
+                f"Overall score: {dashboard.get('overall_score')} / 100 {dashboard.get('overall_status')}",
             ]
         )
         for row in dashboard.get("rows", []):
@@ -47,11 +46,11 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
     if system:
         paragraphs.extend(
             [
-                "Sistema",
+                "System",
                 f"OS: {system['machine']['system']} {system['machine']['release']}",
                 f"CPU: {system['cpu']['brand']}",
                 f"RAM: {system['ram']['total_gib']} GiB",
-                f"IP local: {system['network'].get('local_ip') or 'No detectada'}",
+                f"Local IP: {system['network'].get('local_ip') or 'Not detected'}",
                 "",
             ]
         )
@@ -61,9 +60,9 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
         paragraphs.extend(
             [
                 "RAM",
-                f"Asignacion: {memory['allocation']['status']}",
-                f"Lectura: {memory['bandwidth']['read_mib_per_second']} MiB/s",
-                f"Escritura: {memory['bandwidth']['write_mib_per_second']} MiB/s",
+                f"Allocation: {memory['allocation']['status']}",
+                f"Read: {memory['bandwidth']['read_mib_per_second']} MiB/s",
+                f"Write: {memory['bandwidth']['write_mib_per_second']} MiB/s",
                 "",
             ]
         )
@@ -75,7 +74,7 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
                 "CPU",
                 f"Single-core: {cpu['score']['single_core']} pts",
                 f"Multi-core: {cpu['score']['multi_core']} pts",
-                f"Escalado: {cpu['score']['scaling_factor']}x",
+                f"Scaling: {cpu['score']['scaling_factor']}x",
                 "",
             ]
         )
@@ -84,10 +83,10 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
     if disk:
         paragraphs.extend(
             [
-                "Disco",
-                f"Lectura: {disk['read']['mib_per_second']} MiB/s",
-                f"Escritura: {disk['write']['mib_per_second']} MiB/s",
-                f"Latencia media: {disk['latency']['average_ms']} ms",
+                "Disk",
+                f"Read: {disk['read']['mib_per_second']} MiB/s",
+                f"Write: {disk['write']['mib_per_second']} MiB/s",
+                f"Average latency: {disk['latency']['average_ms']} ms",
                 "",
             ]
         )
@@ -97,10 +96,10 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
         ping = network["ping"]
         paragraphs.extend(
             [
-                "Red",
-                f"Ping medio: {ping.get('average_ms')} ms",
+                "Network",
+                f"Average ping: {ping.get('average_ms')} ms",
                 f"Jitter: {ping.get('jitter_ms')} ms",
-                f"Perdida de paquetes: {ping.get('packet_loss_percent')}%",
+                f"Packet loss: {ping.get('packet_loss_percent')}%",
                 "",
             ]
         )
@@ -112,10 +111,10 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
         paragraphs.extend(
             [
                 "GPU",
-                f"GPUs detectadas: {gpu.get('detected_count')}",
-                f"NVIDIA: {primary.get('name', 'No disponible')}",
+                f"Detected GPUs: {gpu.get('detected_count')}",
+                f"NVIDIA: {primary.get('name', 'Unavailable')}",
                 f"VRAM: {primary.get('memory_used_mib', 'N/A')} / {primary.get('memory_total_mib', 'N/A')} MiB",
-                f"Temperatura: {primary.get('temperature_c', 'N/A')} C",
+                f"Temperature: {primary.get('temperature_c', 'N/A')} C",
                 "",
             ]
         )
@@ -125,10 +124,10 @@ def _build_paragraphs(report: dict[str, Any]) -> list[str]:
         summary = security["summary"]
         paragraphs.extend(
             [
-                "Seguridad",
-                f"Resumen: {summary['ok']} ok | {summary['warning']} warnings | {summary['info']} info",
-                f"Puertos escucha: {len(security['listening_ports'])}",
-                f"Conexiones activas: {security['active_connections']['established_count']}",
+                "Security",
+                f"Summary: {summary['ok']} ok | {summary['warning']} warnings | {summary['info']} info",
+                f"Listening ports: {len(security['listening_ports'])}",
+                f"Active connections: {security['active_connections']['established_count']}",
             ]
         )
 

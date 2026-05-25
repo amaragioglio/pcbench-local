@@ -13,120 +13,137 @@ from pcbench.wizard import configure_interactive
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="pcbench",
-        description="Benchmark y diagnostico local de PC desde la terminal.",
+        description="Terminal-first local PC benchmark and diagnostic tool.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"pcbench {__version__}",
     )
     parser.add_argument(
         "command",
         nargs="?",
         choices=("run", "compare", "wizard"),
         default="run",
-        help="Comando a ejecutar. Por defecto: run.",
+        help="Command to run. Default: run.",
     )
     parser.add_argument(
         "--quick",
         action="store_true",
-        help="Perfil rapido: reduce duracion y tamanos de prueba.",
+        help="Quick profile: reduces test duration and sizes.",
     )
     parser.add_argument(
         "--full",
         action="store_true",
-        help="Perfil completo: aumenta duracion y tamanos de prueba.",
+        help="Full profile: increases test duration and sizes.",
     )
     parser.add_argument(
         "--no-save",
         action="store_true",
-        help="Ejecuta el analisis inicial sin guardar reporte JSON.",
+        help="Runs the scan without saving report artifacts.",
     )
     parser.add_argument(
         "--reports",
         default="json,html,docx,md",
-        help="Formatos de reporte separados por coma: json,html,docx,md,supabase.",
+        help="Comma-separated report formats: json,html,docx,md,supabase.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Directory where reports and logs are saved.",
+    )
+    parser.add_argument(
+        "--keep-last",
+        type=int,
+        default=None,
+        help="Keep only the latest N report artifacts in the output directory.",
     )
     parser.add_argument(
         "--sanitize",
         action="store_true",
-        help="Sanea hostnames, IPs, usuarios y comandos antes de guardar reportes.",
+        help="Sanitize hostnames, IPs, users and commands before saving reports.",
     )
     parser.add_argument(
         "--skip-ram",
         action="store_true",
-        help="Omite el benchmark de RAM.",
+        help="Skip the RAM benchmark.",
     )
     parser.add_argument(
         "--ram-mib",
         type=int,
         default=None,
-        help="Cantidad maxima de RAM en MiB para la prueba. Por defecto usa un limite seguro automatico.",
+        help="Maximum RAM in MiB for the test. Defaults to an automatic safe limit.",
     )
     parser.add_argument(
         "--skip-cpu",
         action="store_true",
-        help="Omite el benchmark de CPU.",
+        help="Skip the CPU benchmark.",
     )
     parser.add_argument(
         "--cpu-seconds",
         type=int,
         default=5,
-        help="Duracion de cada prueba CPU en segundos. Rango permitido: 1 a 60.",
+        help="Duration of each CPU test in seconds. Allowed range: 1 to 60.",
     )
     parser.add_argument(
         "--skip-disk",
         action="store_true",
-        help="Omite el benchmark de disco.",
+        help="Skip the disk benchmark.",
     )
     parser.add_argument(
         "--disk-mib",
         type=int,
         default=512,
-        help="Tamano del archivo temporal de prueba de disco en MiB. Rango permitido: 64 a 4096.",
+        help="Disk test temporary file size in MiB. Allowed range: 64 to 4096.",
     )
     parser.add_argument(
         "--skip-network",
         action="store_true",
-        help="Omite el benchmark de red.",
+        help="Skip the network benchmark.",
     )
     parser.add_argument(
         "--ping-host",
         default="1.1.1.1",
-        help="Host usado para medir latencia con ping.",
+        help="Host used to measure ping latency.",
     )
     parser.add_argument(
         "--dns-host",
         default="google.com",
-        help="Dominio usado para medir resolucion DNS.",
+        help="Domain used to measure DNS resolution.",
     )
     parser.add_argument(
         "--speedtest",
         action="store_true",
-        help="Incluye prueba de descarga/subida. Puede tardar mas y requiere internet.",
+        help="Include download/upload speedtest. It can take longer and requires internet.",
     )
     parser.add_argument(
         "--skip-gpu",
         action="store_true",
-        help="Omite deteccion y metricas de GPU.",
+        help="Skip GPU detection and metrics.",
     )
     parser.add_argument(
         "--skip-security",
         action="store_true",
-        help="Omite auditoria local de seguridad.",
+        help="Skip the local security audit.",
     )
     parser.add_argument(
         "--base",
         type=Path,
         default=None,
-        help="Reporte JSON base para compare.",
+        help="Base JSON report for compare.",
     )
     parser.add_argument(
         "--current",
         type=Path,
         default=None,
-        help="Reporte JSON actual para compare.",
+        help="Current JSON report for compare.",
     )
     parser.add_argument(
         "--profile",
         choices=("quick", "normal", "full"),
         default=None,
-        help="Compara los dos ultimos reportes del perfil indicado.",
+        help="Compare the two latest reports for the selected profile.",
     )
     return parser
 
@@ -143,7 +160,7 @@ def main() -> None:
         if args.base and args.current:
             print_comparison(console, compare_reports(args.base, args.current))
         else:
-            print_comparison(console, compare_latest_reports(args.profile))
+            print_comparison(console, compare_latest_reports(args.profile, args.output_dir))
         return
 
     if args.command == "wizard":

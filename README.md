@@ -1,35 +1,36 @@
 # PCBench Local
 
-Herramienta de terminal para benchmark local, inventario de hardware, red, GPU y auditoria basica de seguridad.
+Terminal-first local PC benchmark, hardware inventory, network check, GPU detection and read-only security audit.
 
-La interfaz esta pensada para terminal: logs en vivo, barras de metricas y reportes exportables.
+The interface is designed for the terminal: live process output, metric bars and exportable reports.
 
-## Estado Actual
+## Current State
 
-- CPU single-core y multi-core.
-- RAM: asignacion controlada y lectura/escritura aproximada.
-- Disco: lectura, escritura y latencia.
-- Red: ping, jitter, DNS y conectividad TCP.
-- GPU: deteccion, VRAM, uso y temperatura si el driver lo expone.
-- Seguridad local: Defender, firewall, puertos, conexiones, admins e inicio automatico.
-- Seguridad Linux: firewall basico, sudo users, puertos, conexiones, servicios systemd y deteccion de contenedor.
-- Reportes JSON, HTML y DOCX compatible con OnlyOffice.
-- Reporte Markdown para GitHub/issues.
-- Dashboard con score general y estado por categoria.
-- Comparacion entre reportes.
-- Dockerfile para uso portable, con limitaciones normales de hardware dentro de contenedores.
+- CPU single-core and multi-core benchmark.
+- RAM allocation and approximate read/write bandwidth.
+- Disk read, write and fsync-overhead latency.
+- Network ping, jitter, DNS and TCP connectivity.
+- GPU detection, VRAM, usage and temperature when exposed by the driver.
+- Windows security audit: Defender, firewall, ports, connections, local admins and startup entries.
+- Linux security audit: firewall, sudo users, ports, connections, systemd services and container detection.
+- JSON, HTML and DOCX reports compatible with OnlyOffice.
+- Markdown report for GitHub/issues.
+- Supabase-optimized flat JSON export.
+- Dashboard with overall score and category status.
+- Report comparison.
+- Dockerfile for portable usage, with the normal hardware visibility limits of containers.
 
-## Seguridad del Proyecto
+## Security
 
-- Los reportes locales se guardan en `/reports/` y no se suben a Git.
-- La auditoria de seguridad es de solo lectura.
-- No hay subida automatica de datos.
-- Usa `--sanitize` para guardar reportes compartibles sin hostnames, IPs, usuarios o comandos en claro.
-- Si no ejecutas como administrador/root, la auditoria marca `partial: true` porque algunos datos pueden estar limitados.
-- La ejecucion deja trazabilidad local en `reports/pcbench.log`, tambien ignorado por Git.
-- Ver [SECURITY.md](SECURITY.md) para reglas y alcance.
+- Reports and logs are local-only.
+- There is no automatic upload.
+- The security audit is read-only.
+- Use `--sanitize` before sharing reports outside your machine.
+- If PCBench is not running as administrator/root, the security audit marks `partial: true`.
+- Runtime logs are written to `pcbench.log` in the selected report directory.
+- See [SECURITY.md](SECURITY.md) for scope and outbound network targets.
 
-## Instalacion Local
+## Install
 
 Windows:
 
@@ -38,7 +39,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
 ```
 
-Desarrollo en Windows:
+Development on Windows:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
@@ -52,66 +53,69 @@ python3 -m venv .venv
 ./.venv/bin/python -m pip install -r requirements.txt
 ```
 
-## Uso
+## Usage
 
-Modo interactivo recomendado:
+Recommended interactive mode:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py wizard
 ```
 
-En Windows tambien puedes ejecutar:
+Windows launcher:
 
 ```powershell
 .\pcbench.bat
 ```
 
-El wizard incluye presets:
-
-- `quick`: Recon rapido con CPU/RAM/DISCO y reportes ligeros.
-- `full`: Diagnostico completo con todos los modulos.
-- `supabase`: Core benchmark + JSON optimizado para Supabase.
-- `custom`: seleccion manual de perfil, modulos y reportes.
-
-Ejecutar perfil normal:
+Version:
 
 ```powershell
-.\.venv\Scripts\python.exe main.py run
+.\.venv\Scripts\python.exe main.py --version
 ```
 
-Perfil rapido:
+Quick profile:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py run --quick
 ```
 
-Perfil completo:
+Full profile:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py run --full
 ```
 
-Comparar los dos ultimos reportes JSON:
+Shareable sanitized report:
+
+```powershell
+.\.venv\Scripts\python.exe main.py run --quick --sanitize --reports json,html,supabase
+```
+
+Custom output directory and retention:
+
+```powershell
+.\.venv\Scripts\python.exe main.py run --quick --output-dir C:\Users\andres\Documents\PCBench\reports --keep-last 20
+```
+
+Compare the two latest JSON reports:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py compare
 ```
 
-Comparar solo reportes del mismo perfil:
+Compare only reports from the same profile:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py compare --profile quick
 ```
 
-Comparar archivos especificos:
+Compare specific files:
 
 ```powershell
 .\.venv\Scripts\python.exe main.py compare --base reports\old.json --current reports\new.json
 ```
 
-La comparacion es mas justa cuando ambos reportes usan el mismo perfil: `quick` contra `quick`, normal contra normal o `full` contra `full`.
-
-## Opciones
+## Options
 
 ```powershell
 .\.venv\Scripts\python.exe main.py run --no-save
@@ -126,101 +130,87 @@ La comparacion es mas justa cuando ambos reportes usan el mismo perfil: `quick` 
 .\.venv\Scripts\python.exe main.py run --disk-mib 1024
 .\.venv\Scripts\python.exe main.py run --speedtest
 .\.venv\Scripts\python.exe main.py run --reports json,html,supabase
-.\.venv\Scripts\python.exe main.py run --sanitize --reports json,html,supabase
+.\.venv\Scripts\python.exe main.py run --sanitize
+.\.venv\Scripts\python.exe main.py run --output-dir .\reports --keep-last 20
 ```
 
-## Reportes
+## Reports
 
-Cada ejecucion con guardado genera:
+Default report directory:
 
-- `reports/pcbench_report_*.json`: datos completos para comparar.
-- `reports/pcbench_report_*.html`: resumen visual en navegador.
-- `reports/pcbench_report_*.docx`: documento que puedes abrir con OnlyOffice.
-- `reports/pcbench_report_*.md`: resumen Markdown para GitHub.
-- `reports/pcbench_supabase_*.json`: payload con tablas planas para Supabase.
+- Windows: `~/Documents/PCBench/reports`
+- Linux/macOS: `~/PCBench/reports`
 
-### JSON para Supabase
+Generated artifacts:
 
-El export Supabase genera un JSON con estas claves:
+- `pcbench_report_*.json`: complete data for comparison.
+- `pcbench_report_*.html`: browser-friendly visual summary.
+- `pcbench_report_*.docx`: document you can open with OnlyOffice or Word.
+- `pcbench_report_*.md`: Markdown summary for GitHub.
+- `pcbench_supabase_*.json`: flat payload for Supabase.
+- `pcbench.log`: local rotating runtime log.
+
+### Supabase JSON
+
+The Supabase export contains these flat table keys:
 
 - `pcbench_runs`
 - `pcbench_metrics`
 - `pcbench_findings`
 
-Cada clave contiene una lista de filas pensadas para importar o insertar en tablas de Supabase.
-
-Si vas a compartir o subir reportes fuera de tu PC, ejecuta con `--sanitize`. El benchmark se calcula igual, pero los archivos guardados reemplazan hostnames, IPs, usuarios, comandos y endpoints por tokens hash truncados.
+Each key contains rows designed for import or insert into Supabase tables.
 
 ## Docker
 
-Construir imagen:
+Build image:
 
 ```powershell
 docker build -t pcbench-local .
 ```
 
-Ejecutar rapido:
+Run quick profile:
 
 ```powershell
 docker run --rm -it pcbench-local
 ```
 
-Guardar reportes en una carpeta local:
+Save reports to a local folder:
 
 PowerShell:
 
 ```powershell
-docker run --rm -it -v ${PWD}\reports:/app/reports pcbench-local run --quick --skip-security
+docker run --rm -it -v ${PWD}\reports:/app/reports pcbench-local run --quick --output-dir /app/reports --skip-security
 ```
 
 Bash:
 
 ```bash
-docker run --rm -it -v "$PWD/reports:/app/reports" pcbench-local run --quick --skip-security
+docker run --rm -it -v "$PWD/reports:/app/reports" pcbench-local run --quick --output-dir /app/reports --skip-security
 ```
 
-Si tu terminal no soporta TTY, ejecuta sin `-it`:
+If your terminal does not support TTY, run without `-it`:
 
 ```powershell
 docker run --rm pcbench-local
 ```
 
-Validado en Docker Desktop con Linux containers:
+Docker notes:
 
-- `docker build -t pcbench-local .`
-- `docker run --rm pcbench-local`
-- `docker run --rm -v <ruta-local>/reports:/app/reports pcbench-local run --quick --skip-security --skip-gpu --skip-network`
+- Containers do not always see host hardware exactly as the host sees it.
+- Disk benchmarks measure the container filesystem or mounted volume.
+- GPU requires extra setup, such as NVIDIA Container Toolkit on Linux.
+- Windows Defender/firewall security checks do not apply inside a Linux container.
+- For real Windows diagnostics, run PCBench locally on Windows.
 
-Notas importantes de Docker:
-
-- Un contenedor no siempre ve el hardware real igual que el host.
-- Benchmarks de disco miden el filesystem montado del contenedor o volumen.
-- GPU requiere configuracion extra, por ejemplo NVIDIA Container Toolkit en Linux.
-- Seguridad de Windows Defender/firewall no aplica dentro de un contenedor Linux.
-- En Linux/Docker se usa auditoria Linux de solo lectura.
-- Para diagnostico real de una PC Windows, es mejor correrlo localmente en Windows.
-
-## Estructura
+## Structure
 
 ```text
 pcbench/
   benchmarks/
-    cpu.py
-    disk.py
-    gpu.py
-    memory.py
-    network.py
-    system_info.py
   reports/
-    compare.py
-    docx_report.py
-    html_report.py
-    json_report.py
-    markdown_report.py
-    metrics.py
   security/
-    audit.py
   cli.py
+  logging_setup.py
   runner.py
   terminal_ui.py
 main.py
@@ -232,6 +222,6 @@ Dockerfile
 pyproject.toml
 ```
 
-## Alcance
+## Scope
 
-Esto no reemplaza herramientas profesionales como Cinebench, CrystalDiskMark, 3DMark o MemTest86. Sirve para diagnostico local, comparaciones entre ejecuciones y auditoria basica de configuracion.
+PCBench does not replace professional tools such as Cinebench, CrystalDiskMark, 3DMark or MemTest86. It is built for local diagnostics, repeated comparisons and basic read-only security posture checks.

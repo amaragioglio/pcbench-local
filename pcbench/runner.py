@@ -22,6 +22,7 @@ from pcbench.reports.docx_report import save_docx_report
 from pcbench.reports.json_report import save_json_report
 from pcbench.reports.markdown_report import save_markdown_report
 from pcbench.reports.metrics import build_dashboard
+from pcbench.reports.paths import prune_old_reports
 from pcbench.reports.sanitize import sanitize_report
 from pcbench.reports.supabase_report import save_supabase_report
 from pcbench.security.audit import run_security_audit
@@ -49,21 +50,22 @@ def _safe_step(
 
 
 def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
-    logger = setup_file_logger()
+    output_dir = getattr(args, "output_dir", None)
+    logger = setup_file_logger(output_dir)
     previous_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, _build_sigint_handler(logger))
     try:
-        return _run_benchmarks(args, console, logger)
+        return _run_benchmarks(args, console, logger, output_dir)
     except KeyboardInterrupt:
         cleanup_disk_temp_file()
         logger.warning("run_cancelled")
-        console.print("[warn]CANCEL[/warn] [muted]Ejecucion cancelada. Temporales limpiados.[/muted]")
+        console.print("[warn]CANCEL[/warn] [muted]Execution cancelled. Temporary files cleaned.[/muted]")
         return {"json": None, "html": None, "document": None, "markdown": None, "supabase": None}
     finally:
         signal.signal(signal.SIGINT, previous_handler)
 
 
-def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict[str, Path | None]:
+def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_dir: Path | None) -> dict[str, Path | None]:
     started_at = datetime.now().astimezone()
     profile = _profile_name(args)
     logger.info(
@@ -94,8 +96,8 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
     system_info = _safe_step(
         console,
         logger,
-        f"[{step}/{total_steps}] SYSINFO // fingerprint local",
-        lambda emit: _with_events(emit, logger, ["Consultando OS, CPU, RAM, discos e IP"], collect_basic_system_info),
+        f"[{step}/{total_steps}] SYSINFO // local fingerprint",
+        lambda emit: _with_events(emit, logger, ["Reading OS, CPU, RAM, disks and IP"], collect_basic_system_info),
     )
     report["results"]["system_info"] = system_info
 
@@ -105,11 +107,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
         memory_benchmark = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] RAM // asignacion y ancho de banda",
+            f"[{step}/{total_steps}] RAM // allocation and bandwidth",
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Calculando limite seguro", "Ejecutando asignacion progresiva", "Midiendo lectura/escritura"],
+                ["Calculating safe limit", "Running progressive allocation", "Measuring read/write bandwidth"],
                 lambda: run_memory_benchmark(args.ram_mib),
             ),
         )
@@ -125,7 +127,7 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
             lambda emit: _with_events(
                 emit,
                 logger,
-                [f"Preparando carga de {args.cpu_seconds}s", "Ejecutando single-core", "Ejecutando multi-core"],
+                [f"Preparing {args.cpu_seconds}s workload", "Running single-core", "Running multi-core"],
                 lambda: run_cpu_benchmark(args.cpu_seconds),
             ),
         )
@@ -137,11 +139,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
         disk_benchmark = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] DISK // lectura escritura latencia",
+            f"[{step}/{total_steps}] DISK // read write latency",
             lambda emit: _with_events(
                 emit,
                 logger,
-                [f"Creando archivo temporal de {args.disk_mib} MiB", "Midiendo escritura", "Midiendo lectura", "Limpiando temporal"],
+                [f"Creating {args.disk_mib} MiB temp file", "Measuring write", "Measuring read", "Cleaning temporary file"],
                 lambda: run_disk_benchmark(args.disk_mib),
             ),
         )
@@ -157,7 +159,7 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
             lambda emit: _with_events(
                 emit,
                 logger,
-                [f"Ping a {args.ping_host}", f"Resolviendo DNS {args.dns_host}", "Probando conexion TCP"],
+                [f"Pinging {args.ping_host}", f"Resolving DNS {args.dns_host}", "Testing TCP connectivity"],
                 lambda: run_network_benchmark(args.ping_host, args.dns_host, args.speedtest),
             ),
         )
@@ -169,11 +171,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
         gpu_benchmark = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] GPU // driver vram sensores",
+            f"[{step}/{total_steps}] GPU // driver vram sensors",
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Consultando WMI", "Consultando GPUtil", "Consultando nvidia-smi si existe"],
+                ["Querying WMI", "Querying GPUtil", "Querying nvidia-smi when available"],
                 run_gpu_benchmark,
             ),
         )
@@ -185,11 +187,11 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
         security_audit = _safe_step(
             console,
             logger,
-            f"[{step}/{total_steps}] SEC // auditoria local",
+            f"[{step}/{total_steps}] SEC // local audit",
             lambda emit: _with_events(
                 emit,
                 logger,
-                ["Detectando plataforma", "Consultando firewall/seguridad", "Enumerando puertos y conexiones", "Revisando usuarios y servicios"],
+                ["Detecting platform", "Checking firewall/security", "Enumerating ports and connections", "Reviewing users and services"],
                 run_security_audit,
             ),
         )
@@ -207,20 +209,21 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
         report_to_save = sanitize_report(report) if getattr(args, "sanitize", False) else report
         selected_reports = _selected_reports(args)
         if "json" in selected_reports:
-            json_path = save_json_report(report_to_save)
+            json_path = save_json_report(report_to_save, output_dir)
             logger.info("artifact_json path=%s", json_path)
         if "html" in selected_reports:
-            html_path = save_html_report(report_to_save, json_path)
+            html_path = save_html_report(report_to_save, json_path, output_dir)
             logger.info("artifact_html path=%s", html_path)
         if "docx" in selected_reports:
-            document_path = save_docx_report(report_to_save)
+            document_path = save_docx_report(report_to_save, output_dir)
             logger.info("artifact_docx path=%s", document_path)
         if "md" in selected_reports:
-            markdown_path = save_markdown_report(report_to_save)
+            markdown_path = save_markdown_report(report_to_save, output_dir)
             logger.info("artifact_markdown path=%s", markdown_path)
         if "supabase" in selected_reports:
-            supabase_path = save_supabase_report(report_to_save)
+            supabase_path = save_supabase_report(report_to_save, output_dir)
             logger.info("artifact_supabase path=%s", supabase_path)
+        prune_old_reports(output_dir, getattr(args, "keep_last", None))
 
     print_report_summary(
         console,

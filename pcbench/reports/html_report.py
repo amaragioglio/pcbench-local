@@ -5,14 +5,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pcbench.reports.paths import ensure_reports_dir
 
-REPORTS_DIR = Path("reports")
 
-
-def save_html_report(report: dict[str, Any], json_path: Path | None = None) -> Path:
-    REPORTS_DIR.mkdir(exist_ok=True)
+def save_html_report(report: dict[str, Any], json_path: Path | None = None, output_dir: Path | str | None = None) -> Path:
+    reports_dir = ensure_reports_dir(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = REPORTS_DIR / f"pcbench_report_{timestamp}.html"
+    path = reports_dir / f"pcbench_report_{timestamp}.html"
     path.write_text(_render_html(report, json_path), encoding="utf-8")
     return path
 
@@ -22,17 +21,17 @@ def _render_html(report: dict[str, Any], json_path: Path | None) -> str:
     dashboard = report.get("dashboard", {})
     cards = [
         _card("Dashboard", _dashboard_rows(dashboard)),
-        _card("Sistema", _system_rows(results.get("system_info"))),
+        _card("System", _system_rows(results.get("system_info"))),
         _card("RAM", _memory_rows(results.get("memory_benchmark"))),
         _card("CPU", _cpu_rows(results.get("cpu_benchmark"))),
-        _card("Disco", _disk_rows(results.get("disk_benchmark"))),
-        _card("Red", _network_rows(results.get("network_benchmark"))),
+        _card("Disk", _disk_rows(results.get("disk_benchmark"))),
+        _card("Network", _network_rows(results.get("network_benchmark"))),
         _card("GPU", _gpu_rows(results.get("gpu_benchmark"))),
-        _card("Seguridad", _security_rows(results.get("security_audit"))),
+        _card("Security", _security_rows(results.get("security_audit"))),
     ]
     source = f"<p>JSON: {html.escape(str(json_path))}</p>" if json_path else ""
     return f"""<!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,7 +53,7 @@ def _render_html(report: dict[str, Any], json_path: Path | None) -> str:
 <body>
   <header>
     <h1>PCBENCH LOCAL // REPORT</h1>
-    <div class="meta">Inicio: {html.escape(str(report.get("started_at", "")))} | Fin: {html.escape(str(report.get("finished_at", "")))}</div>
+    <div class="meta">Started: {html.escape(str(report.get("started_at", "")))} | Finished: {html.escape(str(report.get("finished_at", "")))}</div>
     {source}
   </header>
   <main>
@@ -66,7 +65,7 @@ def _render_html(report: dict[str, Any], json_path: Path | None) -> str:
 
 def _card(title: str, rows: list[tuple[str, Any]]) -> str:
     if not rows:
-        rows = [("Estado", "No ejecutado")]
+        rows = [("Status", "Not run")]
     body = "".join(f"<tr><td>{html.escape(label)}</td><td>{html.escape(str(value))}</td></tr>" for label, value in rows)
     return f"<section><h2>{html.escape(title)}</h2><table>{body}</table></section>"
 
@@ -84,10 +83,10 @@ def _system_rows(data: dict | None) -> list[tuple[str, Any]]:
     if not data:
         return []
     return [
-        ("Sistema", f"{data['machine']['system']} {data['machine']['release']}"),
+        ("System", f"{data['machine']['system']} {data['machine']['release']}"),
         ("CPU", data["cpu"]["brand"]),
         ("RAM", f"{data['ram']['total_gib']} GiB"),
-        ("IP", data["network"].get("local_ip") or "No detectada"),
+        ("IP", data["network"].get("local_ip") or "Not detected"),
     ]
 
 
@@ -95,10 +94,10 @@ def _memory_rows(data: dict | None) -> list[tuple[str, Any]]:
     if not data:
         return []
     return [
-        ("Tamano probado", f"{data['target_test_mib']} MiB"),
-        ("Asignacion", data["allocation"]["status"]),
-        ("Lectura", f"{data['bandwidth']['read_mib_per_second']} MiB/s"),
-        ("Escritura", f"{data['bandwidth']['write_mib_per_second']} MiB/s"),
+        ("Test size", f"{data['target_test_mib']} MiB"),
+        ("Allocation", data["allocation"]["status"]),
+        ("Read", f"{data['bandwidth']['read_mib_per_second']} MiB/s"),
+        ("Write", f"{data['bandwidth']['write_mib_per_second']} MiB/s"),
     ]
 
 
@@ -108,7 +107,7 @@ def _cpu_rows(data: dict | None) -> list[tuple[str, Any]]:
     return [
         ("Single-core", data["score"]["single_core"]),
         ("Multi-core", data["score"]["multi_core"]),
-        ("Escalado", f"{data['score']['scaling_factor']}x"),
+        ("Scaling", f"{data['score']['scaling_factor']}x"),
         ("Workers", data["multi_core"]["workers"]),
     ]
 
@@ -117,9 +116,9 @@ def _disk_rows(data: dict | None) -> list[tuple[str, Any]]:
     if not data:
         return []
     return [
-        ("Escritura", f"{data['write']['mib_per_second']} MiB/s"),
-        ("Lectura", f"{data['read']['mib_per_second']} MiB/s"),
-        ("Latencia media", f"{data['latency']['average_ms']} ms"),
+        ("Write", f"{data['write']['mib_per_second']} MiB/s"),
+        ("Read", f"{data['read']['mib_per_second']} MiB/s"),
+        ("Average latency", f"{data['latency']['average_ms']} ms"),
     ]
 
 
@@ -128,9 +127,9 @@ def _network_rows(data: dict | None) -> list[tuple[str, Any]]:
         return []
     ping = data["ping"]
     return [
-        ("Ping medio", f"{ping.get('average_ms')} ms"),
+        ("Average ping", f"{ping.get('average_ms')} ms"),
         ("Jitter", f"{ping.get('jitter_ms')} ms"),
-        ("Perdida", f"{ping.get('packet_loss_percent')}%"),
+        ("Packet loss", f"{ping.get('packet_loss_percent')}%"),
         ("DNS", f"{data['dns'].get('elapsed_ms')} ms"),
     ]
 
@@ -141,10 +140,10 @@ def _gpu_rows(data: dict | None) -> list[tuple[str, Any]]:
     nvidia = data.get("nvidia_smi", {})
     gpu = nvidia.get("gpus", [{}])[0] if nvidia.get("gpus") else {}
     return [
-        ("Detectadas", data.get("detected_count")),
-        ("NVIDIA", gpu.get("name", "No disponible")),
-        ("VRAM", f"{gpu.get('memory_used_mib')} / {gpu.get('memory_total_mib')} MiB" if gpu else "No disponible"),
-        ("Temperatura", f"{gpu.get('temperature_c')} C" if gpu else "No disponible"),
+        ("Detected", data.get("detected_count")),
+        ("NVIDIA", gpu.get("name", "Unavailable")),
+        ("VRAM", f"{gpu.get('memory_used_mib')} / {gpu.get('memory_total_mib')} MiB" if gpu else "Unavailable"),
+        ("Temperature", f"{gpu.get('temperature_c')} C" if gpu else "Unavailable"),
     ]
 
 
@@ -153,7 +152,7 @@ def _security_rows(data: dict | None) -> list[tuple[str, Any]]:
         return []
     summary = data["summary"]
     return [
-        ("Resumen", f"{summary['ok']} ok | {summary['warning']} warnings | {summary['info']} info"),
-        ("Puertos escucha", len(data["listening_ports"])),
-        ("Conexiones activas", data["active_connections"]["established_count"]),
+        ("Summary", f"{summary['ok']} ok | {summary['warning']} warnings | {summary['info']} info"),
+        ("Listening ports", len(data["listening_ports"])),
+        ("Active connections", data["active_connections"]["established_count"]),
     ]

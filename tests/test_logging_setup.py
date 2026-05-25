@@ -7,10 +7,8 @@ from pcbench import logging_setup
 
 def test_setup_file_logger_creates_rotating_log(tmp_path: Path, monkeypatch) -> None:
     log_path = tmp_path / "pcbench.log"
-    monkeypatch.setattr(logging_setup, "LOG_DIR", tmp_path)
-    monkeypatch.setattr(logging_setup, "LOG_PATH", log_path)
 
-    logger = logging_setup.setup_file_logger()
+    logger = logging_setup.setup_file_logger(tmp_path)
     logger.info("test message")
 
     for handler in logger.handlers:
@@ -24,13 +22,9 @@ def test_setup_file_logger_creates_rotating_log(tmp_path: Path, monkeypatch) -> 
 
 
 def test_setup_file_logger_does_not_duplicate_handlers(tmp_path: Path, monkeypatch) -> None:
-    log_path = tmp_path / "pcbench.log"
-    monkeypatch.setattr(logging_setup, "LOG_DIR", tmp_path)
-    monkeypatch.setattr(logging_setup, "LOG_PATH", log_path)
-
-    logger = logging_setup.setup_file_logger()
+    logger = logging_setup.setup_file_logger(tmp_path)
     first_count = len(logger.handlers)
-    logger = logging_setup.setup_file_logger()
+    logger = logging_setup.setup_file_logger(tmp_path)
 
     assert len(logger.handlers) == first_count
 

@@ -50,9 +50,9 @@ def run_disk_benchmark(test_mib: int = DEFAULT_TEST_MIB) -> dict[str, Any]:
         "read": read_result,
         "latency": latency_result,
         "notes": [
-            "Benchmark de archivo temporal local.",
-            "Los resultados pueden variar por cache del sistema, antivirus y carga del disco.",
-            "La metrica de latencia mide overhead de fsync sobre 128 escrituras de 4 KiB ciclando los primeros 512 KiB del archivo, no latencia de sectores fisicos arbitrarios.",
+            "Local temporary-file benchmark.",
+            "Results may vary due to OS cache, antivirus and disk load.",
+            "Latency measures fsync overhead across 128 writes of 4 KiB cycling through the first 512 KiB of the file, not arbitrary physical-sector latency.",
         ],
     }
 

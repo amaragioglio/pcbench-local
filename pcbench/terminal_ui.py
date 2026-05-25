@@ -42,9 +42,9 @@ def run_step(console: Console, title: str, task: Callable[[Callable[[str], None]
     console.print()
     console.print(f"[accent]:: {title}[/accent]")
     emit = _build_emit(console)
-    emit("Inicializando modulo")
+    emit("Starting module")
     result = task(emit)
-    emit("Modulo completado")
+    emit("Module completed")
     console.print(f"[ok]OK[/ok] [muted]{title}[/muted]")
     return result
 
@@ -76,29 +76,29 @@ def print_report_summary(
         }
     })
 
-    _section(console, "RESUMEN")
+    _section(console, "SUMMARY")
 
     if system_info:
         machine = system_info["machine"]
         cpu = system_info["cpu"]
         ram = system_info["ram"]
-        _kv(console, "Sistema", f"{machine['system']} {machine['release']} ({machine['architecture']})")
+        _kv(console, "System", f"{machine['system']} {machine['release']} ({machine['architecture']})")
         _kv(console, "CPU", f"{cpu['brand']} | {cpu['physical_cores']} cores / {cpu['logical_threads']} threads")
-        _kv(console, "RAM", f"{ram['total_gib']} GiB total | {ram['available_gib']} GiB disponible")
-        _kv(console, "Discos", len(system_info["disks"]))
-        _kv(console, "IP local", system_info["network"]["local_ip"] or "No detectada")
+        _kv(console, "RAM", f"{ram['total_gib']} GiB total | {ram['available_gib']} GiB available")
+        _kv(console, "Disks", len(system_info["disks"]))
+        _kv(console, "Local IP", system_info["network"]["local_ip"] or "Not detected")
     else:
-        _metric(console, "Sistema", "fallo en SYSINFO", "warn")
+        _metric(console, "System", "SYSINFO failed", "warn")
 
     if memory_benchmark:
         console.print()
         console.print("[accent]RAM[/accent]")
         bandwidth = memory_benchmark["bandwidth"]
         allocation = memory_benchmark["allocation"]
-        _metric(console, "Asignacion", allocation["status"], "ok" if allocation["status"] == "passed" else "warn")
-        _bar_metric(console, "Lectura", bandwidth["read_mib_per_second"], "MiB/s", 1000)
-        _bar_metric(console, "Escritura", bandwidth["write_mib_per_second"], "MiB/s", 5000)
-        _kv(console, "Bloque mayor OK", f"{allocation['largest_successful_mib']} MiB")
+        _metric(console, "Allocation", allocation["status"], "ok" if allocation["status"] == "passed" else "warn")
+        _bar_metric(console, "Read", bandwidth["read_mib_per_second"], "MiB/s", 1000)
+        _bar_metric(console, "Write", bandwidth["write_mib_per_second"], "MiB/s", 5000)
+        _kv(console, "Largest OK block", f"{allocation['largest_successful_mib']} MiB")
 
     if cpu_benchmark:
         console.print()
@@ -106,23 +106,23 @@ def print_report_summary(
         score = cpu_benchmark["score"]
         _bar_metric(console, "Single-core", score["single_core"], "pts", 8000)
         _bar_metric(console, "Multi-core", score["multi_core"], "pts", 30000)
-        _bar_metric(console, "Escalado", score["scaling_factor"], "x", max(score["scaling_factor"] or 1, 12))
+        _bar_metric(console, "Scaling", score["scaling_factor"], "x", max(score["scaling_factor"] or 1, 12))
         _kv(console, "Workers", cpu_benchmark["multi_core"]["workers"])
 
     if disk_benchmark:
         console.print()
-        console.print("[accent]DISCO[/accent]")
-        _bar_metric(console, "Lectura", disk_benchmark["read"]["mib_per_second"], "MiB/s", 3500)
-        _bar_metric(console, "Escritura", disk_benchmark["write"]["mib_per_second"], "MiB/s", 2000)
-        _bar_metric(console, "Latencia", disk_benchmark["latency"]["average_ms"], "ms", 5, lower_is_better=True)
+        console.print("[accent]DISK[/accent]")
+        _bar_metric(console, "Read", disk_benchmark["read"]["mib_per_second"], "MiB/s", 3500)
+        _bar_metric(console, "Write", disk_benchmark["write"]["mib_per_second"], "MiB/s", 2000)
+        _bar_metric(console, "Latency", disk_benchmark["latency"]["average_ms"], "ms", 5, lower_is_better=True)
 
     if network_benchmark:
         console.print()
-        console.print("[accent]RED[/accent]")
+        console.print("[accent]NETWORK[/accent]")
         ping = network_benchmark["ping"]
         _bar_metric(console, "Ping", ping.get("average_ms"), "ms", 100, lower_is_better=True)
         _bar_metric(console, "Jitter", ping.get("jitter_ms"), "ms", 30, lower_is_better=True)
-        _metric(console, "Perdida", _format_optional_percent(ping.get("packet_loss_percent")))
+        _metric(console, "Packet loss", _format_optional_percent(ping.get("packet_loss_percent")))
         _metric(console, "DNS", _format_dns(network_benchmark["dns"]))
 
     if gpu_benchmark:
@@ -131,47 +131,47 @@ def print_report_summary(
         nvidia = gpu_benchmark.get("nvidia_smi", {})
         wmi_gpus = [gpu for gpu in gpu_benchmark.get("wmi", []) if gpu.get("name")]
         if wmi_gpus:
-            _kv(console, "Detectadas", ", ".join(gpu["name"] for gpu in wmi_gpus))
+            _kv(console, "Detected", ", ".join(gpu["name"] for gpu in wmi_gpus))
         if nvidia.get("status") == "passed" and nvidia.get("gpus"):
             primary = nvidia["gpus"][0]
-            _bar_metric(console, "Uso", primary.get("utilization_percent"), "%", 100)
+            _bar_metric(console, "Usage", primary.get("utilization_percent"), "%", 100)
             _bar_metric(console, "VRAM", primary.get("memory_used_mib"), "MiB", primary.get("memory_total_mib") or 1)
-            _bar_metric(console, "Temperatura", primary.get("temperature_c"), "C", 95, lower_is_better=True)
+            _bar_metric(console, "Temperature", primary.get("temperature_c"), "C", 95, lower_is_better=True)
         else:
-            _metric(console, "NVIDIA SMI", "No disponible", "warn")
+            _metric(console, "NVIDIA SMI", "Unavailable", "warn")
 
     if security_audit:
         console.print()
-        console.print("[accent]SEGURIDAD[/accent]")
+        console.print("[accent]SECURITY[/accent]")
         summary = security_audit["summary"]
         if security_audit.get("partial"):
-            _metric(console, "Alcance", "parcial: ejecuta como admin/root para mas detalle", "warn")
+            _metric(console, "Scope", "partial: run as admin/root for more detail", "warn")
         _bar_metric(console, "Warnings", summary["warning"], "", max(summary["warning"], 5), lower_is_better=True)
-        _kv(console, "Puertos escucha", len(security_audit["listening_ports"]))
-        _kv(console, "Conexiones activas", security_audit["active_connections"]["established_count"])
+        _kv(console, "Listening ports", len(security_audit["listening_ports"]))
+        _kv(console, "Active connections", security_audit["active_connections"]["established_count"])
         if security_audit.get("platform"):
-            _kv(console, "Plataforma audit", security_audit["platform"])
+            _kv(console, "Audit platform", security_audit["platform"])
         if security_audit.get("privileges"):
-            _kv(console, "Privilegios", security_audit["privileges"].get("scope", "unknown"))
+            _kv(console, "Privileges", security_audit["privileges"].get("scope", "unknown"))
         if "local_admins" in security_audit:
             local_admins = security_audit["local_admins"].get("data") or []
-            _kv(console, "Admins locales", len(local_admins))
+            _kv(console, "Local admins", len(local_admins))
         if "sudo_users" in security_audit:
             _kv(console, "Sudo users", security_audit["sudo_users"].get("count", 0))
         if "services" in security_audit:
-            _kv(console, "Servicios", security_audit["services"].get("active_count") or "No disponible")
+            _kv(console, "Services", security_audit["services"].get("active_count") or "Unavailable")
         for finding in security_audit["findings"][:5]:
             style = "ok" if finding["severity"] == "ok" else "warn" if finding["severity"] == "warning" else "muted"
             _metric(console, finding["area"], f"{finding['severity']}: {finding['message']}", style)
 
     console.print()
-    _section(console, "ARTEFACTOS")
+    _section(console, "ARTIFACTS")
     if report_path:
         _kv(console, "JSON", report_path)
     if html_path:
         _kv(console, "HTML", html_path)
     if document_path:
-        _kv(console, "Documento", document_path)
+        _kv(console, "Document", document_path)
     if markdown_path:
         _kv(console, "Markdown", markdown_path)
     if supabase_path:
@@ -180,26 +180,26 @@ def print_report_summary(
 
 def print_comparison(console: Console, comparison: dict) -> None:
     if comparison.get("status") != "passed":
-        console.print(f"[warn]{comparison.get('error', 'No se pudo comparar.')}[/warn]")
+        console.print(f"[warn]{comparison.get('error', 'Could not compare reports.')}[/warn]")
         return
 
     console.print()
-    _section(console, "COMPARACION")
+    _section(console, "COMPARISON")
     for row in comparison["rows"]:
         before = row["before"]
         after = row["after"]
         if row["delta"] is None:
-            _metric(console, row["metric"], "sin datos", "muted")
+            _metric(console, row["metric"], "no data", "muted")
             continue
         percent = "" if row["percent"] is None else f" / {row['percent']}%"
-        style = "ok" if row["result"] == "mejor" else "warn" if row["result"] == "peor" else "muted"
+        style = "ok" if row["result"] == "better" else "warn" if row["result"] == "worse" else "muted"
         _metric(console, row["metric"], f"{before} -> {after} | delta {row['delta']}{percent} | {row['result']}", style)
 
     console.print()
     _kv(console, "Base", comparison["base_path"])
-    _kv(console, "Actual", comparison["current_path"])
+    _kv(console, "Current", comparison["current_path"])
     if comparison.get("profile_warning"):
-        console.print("[warn]WARN[/warn] Los reportes comparados usan perfiles distintos.")
+        console.print("[warn]WARN[/warn] Compared reports use different profiles.")
 
 
 def _print_dashboard(console: Console, report: dict[str, Any]) -> None:
@@ -207,7 +207,7 @@ def _print_dashboard(console: Console, report: dict[str, Any]) -> None:
 
     dashboard = build_dashboard(report)
     _section(console, "DASHBOARD")
-    _kv(console, "Score general", f"{dashboard['overall_score']} / 100 [{dashboard['overall_status']}]")
+    _kv(console, "Overall score", f"{dashboard['overall_score']} / 100 [{dashboard['overall_status']}]")
     for row in dashboard["rows"]:
         style = "ok" if row["status"] in {"GOOD", "OK"} else "warn" if row["status"] == "WARN" else "danger"
         console.print(
@@ -242,7 +242,7 @@ def _bar_metric(
     lower_is_better: bool = False,
 ) -> None:
     if value is None:
-        _metric(console, label, "No detectado", "warn")
+        _metric(console, label, "Not detected", "warn")
         return
 
     ratio = min(1.0, max(0.0, float(value) / float(max_value))) if max_value else 0.0
@@ -269,4 +269,4 @@ def _format_dns(dns: dict) -> str:
 
 
 def _format_optional_percent(value: float | None) -> str:
-    return "No detectado" if value is None else f"{value}%"
+    return "Not detected" if value is None else f"{value}%"

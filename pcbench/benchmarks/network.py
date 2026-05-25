@@ -36,8 +36,8 @@ def run_network_benchmark(
         "connectivity": connectivity,
         "speedtest": speedtest,
         "notes": [
-            "Ping mide latencia hacia un host externo, no velocidad de descarga.",
-            "Speedtest es opcional porque tarda mas y depende de internet/servidores externos.",
+            "Ping measures latency to an external host, not download speed.",
+            "Speedtest is optional because it takes longer and depends on internet/server conditions.",
         ],
     }
 

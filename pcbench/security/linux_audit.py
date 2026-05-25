@@ -36,9 +36,9 @@ def run_linux_security_audit() -> dict[str, Any]:
         "findings": findings,
         "summary": _summarize_findings(findings),
         "notes": [
-            "Auditoria Linux local de solo lectura.",
-            "No modifica firewall, servicios, usuarios ni paquetes.",
-            "Ejecutar con sudo puede exponer mas datos de procesos, puertos y servicios.",
+            "Read-only local Linux audit.",
+            "Does not modify firewall, services, users or packages.",
+            "Running with sudo can expose more process, port and service details.",
         ],
     }
 
@@ -228,38 +228,38 @@ def _build_findings(
         findings.append(
             {
                 "severity": "warning",
-                "area": "Privilegios",
-                "message": "Auditoria ejecutada sin root/sudo; algunos datos pueden ser parciales.",
+                "area": "Privileges",
+                "message": "Audit ran without root/sudo; some data may be partial.",
             }
         )
 
     if firewall.get("enabled") is True:
-        findings.append({"severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} activo."})
+        findings.append({"severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} is active."})
     elif firewall.get("enabled") is False:
-        findings.append({"severity": "warning", "area": "Firewall", "message": f"{firewall.get('manager')} no esta activo."})
+        findings.append({"severity": "warning", "area": "Firewall", "message": f"{firewall.get('manager')} is not active."})
     else:
-        findings.append({"severity": "info", "area": "Firewall", "message": "No se pudo determinar el firewall activo."})
+        findings.append({"severity": "info", "area": "Firewall", "message": "Could not determine active firewall."})
 
     sudo_count = sudo_users.get("count", 0)
     if sudo_count > 0:
-        findings.append({"severity": "info", "area": "Sudo", "message": f"{sudo_count} usuario(s) en grupos sudo/wheel/admin."})
+        findings.append({"severity": "info", "area": "Sudo", "message": f"{sudo_count} user(s) in sudo/wheel/admin groups."})
     else:
-        findings.append({"severity": "ok", "area": "Sudo", "message": "No se detectaron usuarios en grupos sudo/wheel/admin."})
+        findings.append({"severity": "ok", "area": "Sudo", "message": "No users detected in sudo/wheel/admin groups."})
 
     exposed = sorted({row["port"] for row in listening_ports if row["is_common_exposed_port"]})
     if exposed:
         ports = ", ".join(str(port) for port in exposed[:16])
-        findings.append({"severity": "info", "area": "Puertos", "message": f"Puertos comunes en escucha: {ports}."})
+        findings.append({"severity": "info", "area": "Ports", "message": f"Common listening ports: {ports}."})
     else:
-        findings.append({"severity": "ok", "area": "Puertos", "message": "No se detectaron puertos comunes expuestos en escucha."})
+        findings.append({"severity": "ok", "area": "Ports", "message": "No common exposed listening ports detected."})
 
     if services.get("status") == "passed":
-        findings.append({"severity": "info", "area": "Servicios", "message": f"{services.get('active_count', 0)} servicios systemd activos."})
+        findings.append({"severity": "info", "area": "Services", "message": f"{services.get('active_count', 0)} active systemd services."})
     else:
-        findings.append({"severity": "info", "area": "Servicios", "message": "systemd no disponible o no consultable."})
+        findings.append({"severity": "info", "area": "Services", "message": "systemd unavailable or not queryable."})
 
     if container.get("detected"):
-        findings.append({"severity": "info", "area": "Contenedor", "message": "Entorno de contenedor/WSL detectado; hardware y seguridad pueden diferir del host."})
+        findings.append({"severity": "info", "area": "Container", "message": "Container/WSL environment detected; hardware and security may differ from the host."})
 
     return findings
 
