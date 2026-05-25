@@ -24,6 +24,9 @@ La interfaz esta pensada para terminal: logs en vivo, barras de metricas y repor
 - Los reportes locales se guardan en `/reports/` y no se suben a Git.
 - La auditoria de seguridad es de solo lectura.
 - No hay subida automatica de datos.
+- Usa `--sanitize` para guardar reportes compartibles sin hostnames, IPs, usuarios o comandos en claro.
+- Si no ejecutas como administrador/root, la auditoria marca `partial: true` porque algunos datos pueden estar limitados.
+- La ejecucion deja trazabilidad local en `reports/pcbench.log`, tambien ignorado por Git.
 - Ver [SECURITY.md](SECURITY.md) para reglas y alcance.
 
 ## Instalacion Local
@@ -123,6 +126,7 @@ La comparacion es mas justa cuando ambos reportes usan el mismo perfil: `quick` 
 .\.venv\Scripts\python.exe main.py run --disk-mib 1024
 .\.venv\Scripts\python.exe main.py run --speedtest
 .\.venv\Scripts\python.exe main.py run --reports json,html,supabase
+.\.venv\Scripts\python.exe main.py run --sanitize --reports json,html,supabase
 ```
 
 ## Reportes
@@ -144,6 +148,8 @@ El export Supabase genera un JSON con estas claves:
 - `pcbench_findings`
 
 Cada clave contiene una lista de filas pensadas para importar o insertar en tablas de Supabase.
+
+Si vas a compartir o subir reportes fuera de tu PC, ejecuta con `--sanitize`. El benchmark se calcula igual, pero los archivos guardados reemplazan hostnames, IPs, usuarios, comandos y endpoints por tokens hash truncados.
 
 ## Docker
 

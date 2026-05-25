@@ -43,6 +43,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Formatos de reporte separados por coma: json,html,docx,md,supabase.",
     )
     parser.add_argument(
+        "--sanitize",
+        action="store_true",
+        help="Sanea hostnames, IPs, usuarios y comandos antes de guardar reportes.",
+    )
+    parser.add_argument(
         "--skip-ram",
         action="store_true",
         help="Omite el benchmark de RAM.",

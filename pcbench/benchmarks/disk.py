@@ -17,29 +17,29 @@ MAX_TEST_MIB = 4096
 BLOCK_MIB = 4
 LATENCY_SAMPLES = 128
 LATENCY_BLOCK_BYTES = 4096
+TEST_DIR = Path(tempfile.gettempdir()) / "pcbench-local"
+TEST_PATH = TEST_DIR / "disk_benchmark.tmp"
 
 
 def run_disk_benchmark(test_mib: int = DEFAULT_TEST_MIB) -> dict[str, Any]:
     test_mib = _clamp_test_size(test_mib)
-    test_dir = Path(tempfile.gettempdir()) / "pcbench-local"
-    test_dir.mkdir(exist_ok=True)
-    test_path = test_dir / "disk_benchmark.tmp"
+    TEST_DIR.mkdir(exist_ok=True)
     size_bytes = test_mib * BYTES_IN_MIB
     block = os.urandom(BLOCK_MIB * BYTES_IN_MIB)
 
-    disk_before = psutil.disk_usage(str(test_dir))
+    disk_before = psutil.disk_usage(str(TEST_DIR))
 
     try:
-        write_result = _write_test_file(test_path, size_bytes, block)
-        read_result = _read_test_file(test_path, size_bytes)
-        latency_result = _latency_test(test_path)
+        write_result = _write_test_file(TEST_PATH, size_bytes, block)
+        read_result = _read_test_file(TEST_PATH, size_bytes)
+        latency_result = _latency_test(TEST_PATH)
     finally:
-        _safe_remove(test_path)
+        cleanup_disk_temp_file()
 
-    disk_after = psutil.disk_usage(str(test_dir))
+    disk_after = psutil.disk_usage(str(TEST_DIR))
 
     return {
-        "test_path": str(test_path),
+        "test_path": str(TEST_PATH),
         "test_size_mib": test_mib,
         "filesystem": {
             "total_gib": _gib(disk_before.total),
@@ -140,3 +140,7 @@ def _safe_remove(path: Path) -> None:
         path.unlink(missing_ok=True)
     except OSError:
         pass
+
+
+def cleanup_disk_temp_file() -> None:
+    _safe_remove(TEST_PATH)

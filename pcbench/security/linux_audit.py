@@ -13,16 +13,19 @@ COMMON_EXPOSED_PORTS = {21, 22, 23, 25, 53, 80, 110, 135, 139, 143, 389, 443, 44
 
 
 def run_linux_security_audit() -> dict[str, Any]:
+    privileges = _collect_privileges()
     firewall = _collect_firewall_status()
     sudo_users = _collect_sudo_users()
     listening_ports = _collect_listening_ports()
     active_connections = _collect_active_connections()
     services = _collect_systemd_services()
     container = _detect_container()
-    findings = _build_findings(firewall, sudo_users, listening_ports, services, container)
+    findings = _build_findings(privileges, firewall, sudo_users, listening_ports, services, container)
 
     return {
         "platform": "linux",
+        "partial": not privileges["is_root"],
+        "privileges": privileges,
         "firewall": firewall,
         "sudo_users": sudo_users,
         "listening_ports": listening_ports,
@@ -35,7 +38,17 @@ def run_linux_security_audit() -> dict[str, Any]:
         "notes": [
             "Auditoria Linux local de solo lectura.",
             "No modifica firewall, servicios, usuarios ni paquetes.",
+            "Ejecutar con sudo puede exponer mas datos de procesos, puertos y servicios.",
         ],
+    }
+
+
+def _collect_privileges() -> dict[str, Any]:
+    is_root = hasattr(os, "geteuid") and os.geteuid() == 0
+    return {
+        "status": "passed",
+        "is_root": is_root,
+        "scope": "root" if is_root else "limited",
     }
 
 
@@ -202,6 +215,7 @@ def _detect_container() -> dict[str, Any]:
 
 
 def _build_findings(
+    privileges: dict[str, Any],
     firewall: dict[str, Any],
     sudo_users: dict[str, Any],
     listening_ports: list[dict[str, Any]],
@@ -209,6 +223,15 @@ def _build_findings(
     container: dict[str, Any],
 ) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
+
+    if not privileges.get("is_root"):
+        findings.append(
+            {
+                "severity": "warning",
+                "area": "Privilegios",
+                "message": "Auditoria ejecutada sin root/sudo; algunos datos pueden ser parciales.",
+            }
+        )
 
     if firewall.get("enabled") is True:
         findings.append({"severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} activo."})

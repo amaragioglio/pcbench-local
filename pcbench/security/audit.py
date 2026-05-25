@@ -18,16 +18,20 @@ def run_security_audit() -> dict[str, Any]:
     if platform.system().lower() == "linux":
         return run_linux_security_audit()
 
+    privileges = _collect_privileges()
     defender = _collect_defender_status()
     firewall = _collect_firewall_status()
     local_admins = _collect_local_admins()
     listening_ports = _collect_listening_ports()
     active_connections = _collect_active_connections()
     startup_items = _collect_startup_items()
-    findings = _build_findings(defender, firewall, local_admins, listening_ports)
+    findings = _build_findings(privileges, defender, firewall, local_admins, listening_ports)
+    partial = not privileges["is_admin"]
 
     return {
         "platform": "windows",
+        "partial": partial,
+        "privileges": privileges,
         "defender": defender,
         "firewall": firewall,
         "local_admins": local_admins,
@@ -39,8 +43,28 @@ def run_security_audit() -> dict[str, Any]:
         "notes": [
             "Auditoria local de solo lectura.",
             "No explota vulnerabilidades ni modifica configuracion del sistema.",
+            "Ejecutar como administrador puede exponer mas datos de procesos, puertos y seguridad.",
         ],
     }
+
+
+def _collect_privileges() -> dict[str, Any]:
+    try:
+        import ctypes
+
+        is_admin = bool(ctypes.windll.shell32.IsUserAnAdmin())
+        return {
+            "status": "passed",
+            "is_admin": is_admin,
+            "scope": "elevated" if is_admin else "limited",
+        }
+    except (AttributeError, OSError) as error:
+        return {
+            "status": "failed",
+            "is_admin": False,
+            "scope": "unknown",
+            "error": str(error),
+        }
 
 
 def _collect_defender_status() -> dict[str, Any]:
@@ -150,6 +174,7 @@ def _collect_active_connections() -> dict[str, Any]:
 
 
 def _build_findings(
+    privileges: dict[str, Any],
     defender: dict[str, Any],
     firewall: dict[str, Any],
     local_admins: dict[str, Any],
@@ -157,6 +182,15 @@ def _build_findings(
 ) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     defender_data = defender.get("data") if defender.get("status") == "passed" else {}
+
+    if not privileges.get("is_admin"):
+        findings.append(
+            {
+                "severity": "warning",
+                "area": "Privilegios",
+                "message": "Auditoria ejecutada sin permisos de administrador; algunos datos pueden ser parciales.",
+            }
+        )
 
     if defender.get("status") != "passed":
         findings.append({"severity": "warning", "area": "Defender", "message": "No se pudo consultar Windows Defender."})

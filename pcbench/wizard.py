@@ -55,23 +55,27 @@ def configure_interactive(args: argparse.Namespace, console: Console) -> argpars
         profile = Prompt.ask("Perfil", choices=["quick", "normal", "full"], default="quick", console=console)
         scope = Prompt.ask("Modulos", choices=["all", "core", "custom"], default="all", console=console)
         reports = _parse_reports(Prompt.ask("Reportes", default="json,html,docx,md", console=console))
+        sanitize = Confirm.ask("Sanear reportes para compartir?", default=True, console=console)
         speedtest = Confirm.ask("Incluir speedtest? puede tardar mas", default=False, console=console)
     else:
         profile = preset["profile"]
         scope = preset["scope"]
         reports = list(preset["reports"])
+        sanitize = preset_name == "supabase"
         speedtest = bool(preset["speedtest"])
 
         if Confirm.ask("Ajustar este preset?", default=False, console=console):
             profile = Prompt.ask("Perfil", choices=["quick", "normal", "full"], default=str(profile), console=console)
             scope = Prompt.ask("Modulos", choices=["all", "core", "custom"], default=str(scope), console=console)
             reports = _parse_reports(Prompt.ask("Reportes", default=",".join(reports), console=console))
+            sanitize = Confirm.ask("Sanear reportes para compartir?", default=sanitize, console=console)
             speedtest = Confirm.ask("Incluir speedtest? puede tardar mas", default=speedtest, console=console)
 
     _apply_profile_choice(args, str(profile))
     _apply_scope_choice(args, str(scope), console)
     args.reports = ",".join(reports)
     args.no_save = False if reports else True
+    args.sanitize = sanitize
     args.speedtest = speedtest
 
     _print_execution_plan(console, preset["label"], str(profile), str(scope), reports, args)
@@ -135,6 +139,7 @@ def _print_execution_plan(
     console.print(f"[label]Scope[/label]    :: {scope}")
     console.print(f"[label]Modulos[/label]  :: {', '.join(modules)}")
     console.print(f"[label]Reportes[/label] :: {', '.join(reports) if reports else 'sin reportes'}")
+    console.print(f"[label]Sanitize[/label] :: {'si' if getattr(args, 'sanitize', False) else 'no'}")
     console.print(f"[label]Speedtest[/label]:: {'si' if args.speedtest else 'no'}")
 
 

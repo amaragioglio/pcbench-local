@@ -10,6 +10,8 @@ This project is a local diagnostic and benchmark tool. It should not collect sec
 
 The security audit module is read-only by design. It checks local configuration such as firewall state, Defender status, listening ports, startup entries, and local administrators.
 
+When the tool is not running with administrator/root privileges, audit output is marked with `partial: true` and a privileges finding. The tool still runs read-only checks, but process, port, service, or security-provider details may be incomplete.
+
 ## Reporting a Vulnerability
 
 For private repositories, report issues directly to the repository owner.
@@ -25,9 +27,26 @@ When reporting, include:
 
 Generated reports may include local hardware details, usernames, IP addresses, listening ports, process names, and security configuration summaries. Reports are ignored by Git via `/reports/` and should be reviewed before sharing publicly.
 
+Use `--sanitize` when generating reports that will be shared, uploaded, or imported into an external database. Sanitized reports replace hostnames, IP addresses, usernames, command paths, and connection endpoints with deterministic truncated hash tokens.
+
+Runtime logs are written to `reports/pcbench.log` with simple rotation. Logs are local-only and ignored by Git; they are intended for troubleshooting module start, finish, artifacts, and failures.
+
+If execution is interrupted with `Ctrl+C`, PCBench attempts to remove the disk benchmark temporary file before exiting.
+
 ## Design Rules
 
 - Do not add network upload behavior by default.
 - Do not store credentials or tokens in reports.
 - Do not run destructive commands from audits.
 - Keep security checks read-only unless a future command clearly asks the user for remediation.
+
+## Outbound Network Scope
+
+Network checks only run when the network module is enabled. Default outbound targets are:
+
+- `1.1.1.1` for ping latency.
+- `1.1.1.1:443` for TCP connectivity.
+- `google.com:443` for DNS resolution timing.
+- Speedtest servers selected by `speedtest-cli` only when `--speedtest` is explicitly enabled.
+
+Users can change ping and DNS targets with `--ping-host` and `--dns-host`.

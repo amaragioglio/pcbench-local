@@ -21,3 +21,10 @@
 - Added Windows launcher script.
 - Added wizard presets and execution confirmation.
 - Added Linux read-only security audit.
+- Added `--sanitize` report mode for shareable reports without raw hostnames, IPs, users, commands, or endpoints.
+- Added privilege-scope detection and partial security audit markers.
+- Added local rotating runtime log at `reports/pcbench.log`.
+- Added `Ctrl+C` cleanup for disk benchmark temporary files.
+- Hardened Docker runtime with a non-root user.
+- Expanded CI dependency audit to all requirements files.
+- Documented outbound network targets.
