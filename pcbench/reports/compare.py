@@ -4,8 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-
-REPORTS_DIR = Path("reports")
+from pcbench.reports.paths import resolve_reports_dir
 
 
 METRICS = [
@@ -21,15 +20,16 @@ METRICS = [
 ]
 
 
-def latest_json_reports(limit: int = 2, profile: str | None = None) -> list[Path]:
-    reports = sorted(REPORTS_DIR.glob("pcbench_report_*.json"), key=lambda path: path.stat().st_mtime)
+def latest_json_reports(limit: int = 2, profile: str | None = None, output_dir: Path | str | None = None) -> list[Path]:
+    reports_dir = resolve_reports_dir(output_dir)
+    reports = sorted(reports_dir.glob("pcbench_report_*.json"), key=lambda path: path.name)
     if profile:
         reports = [path for path in reports if _report_profile(path) == profile]
     return reports[-limit:]
 
 
-def compare_latest_reports(profile: str | None = None) -> dict[str, Any]:
-    paths = latest_json_reports(2, profile)
+def compare_latest_reports(profile: str | None = None, output_dir: Path | str | None = None) -> dict[str, Any]:
+    paths = latest_json_reports(2, profile, output_dir)
     if len(paths) < 2:
         suffix = f" para perfil {profile}" if profile else ""
         return {"status": "failed", "error": f"Se necesitan al menos dos reportes JSON{suffix}.", "paths": paths}

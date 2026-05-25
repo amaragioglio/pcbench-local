@@ -16,6 +16,11 @@ def build_parser() -> argparse.ArgumentParser:
         description="Benchmark y diagnostico local de PC desde la terminal.",
     )
     parser.add_argument(
+        "--version",
+        action="version",
+        version=f"pcbench {__version__}",
+    )
+    parser.add_argument(
         "command",
         nargs="?",
         choices=("run", "compare", "wizard"),
@@ -41,6 +46,18 @@ def build_parser() -> argparse.ArgumentParser:
         "--reports",
         default="json,html,docx,md",
         help="Formatos de reporte separados por coma: json,html,docx,md,supabase.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=None,
+        help="Directorio donde se guardan reportes y logs.",
+    )
+    parser.add_argument(
+        "--keep-last",
+        type=int,
+        default=None,
+        help="Conserva solo los ultimos N artefactos de reporte en el directorio de salida.",
     )
     parser.add_argument(
         "--sanitize",
@@ -143,7 +160,7 @@ def main() -> None:
         if args.base and args.current:
             print_comparison(console, compare_reports(args.base, args.current))
         else:
-            print_comparison(console, compare_latest_reports(args.profile))
+            print_comparison(console, compare_latest_reports(args.profile, args.output_dir))
         return
 
     if args.command == "wizard":

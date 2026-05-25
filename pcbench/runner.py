@@ -22,6 +22,7 @@ from pcbench.reports.docx_report import save_docx_report
 from pcbench.reports.json_report import save_json_report
 from pcbench.reports.markdown_report import save_markdown_report
 from pcbench.reports.metrics import build_dashboard
+from pcbench.reports.paths import prune_old_reports
 from pcbench.reports.sanitize import sanitize_report
 from pcbench.reports.supabase_report import save_supabase_report
 from pcbench.security.audit import run_security_audit
@@ -49,11 +50,12 @@ def _safe_step(
 
 
 def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
-    logger = setup_file_logger()
+    output_dir = getattr(args, "output_dir", None)
+    logger = setup_file_logger(output_dir)
     previous_handler = signal.getsignal(signal.SIGINT)
     signal.signal(signal.SIGINT, _build_sigint_handler(logger))
     try:
-        return _run_benchmarks(args, console, logger)
+        return _run_benchmarks(args, console, logger, output_dir)
     except KeyboardInterrupt:
         cleanup_disk_temp_file()
         logger.warning("run_cancelled")
@@ -63,7 +65,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
         signal.signal(signal.SIGINT, previous_handler)
 
 
-def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict[str, Path | None]:
+def _run_benchmarks(args: Any, console: Console, logger: logging.Logger, output_dir: Path | None) -> dict[str, Path | None]:
     started_at = datetime.now().astimezone()
     profile = _profile_name(args)
     logger.info(
@@ -207,20 +209,21 @@ def _run_benchmarks(args: Any, console: Console, logger: logging.Logger) -> dict
         report_to_save = sanitize_report(report) if getattr(args, "sanitize", False) else report
         selected_reports = _selected_reports(args)
         if "json" in selected_reports:
-            json_path = save_json_report(report_to_save)
+            json_path = save_json_report(report_to_save, output_dir)
             logger.info("artifact_json path=%s", json_path)
         if "html" in selected_reports:
-            html_path = save_html_report(report_to_save, json_path)
+            html_path = save_html_report(report_to_save, json_path, output_dir)
             logger.info("artifact_html path=%s", html_path)
         if "docx" in selected_reports:
-            document_path = save_docx_report(report_to_save)
+            document_path = save_docx_report(report_to_save, output_dir)
             logger.info("artifact_docx path=%s", document_path)
         if "md" in selected_reports:
-            markdown_path = save_markdown_report(report_to_save)
+            markdown_path = save_markdown_report(report_to_save, output_dir)
             logger.info("artifact_markdown path=%s", markdown_path)
         if "supabase" in selected_reports:
-            supabase_path = save_supabase_report(report_to_save)
+            supabase_path = save_supabase_report(report_to_save, output_dir)
             logger.info("artifact_supabase path=%s", supabase_path)
+        prune_old_reports(output_dir, getattr(args, "keep_last", None))
 
     print_report_summary(
         console,

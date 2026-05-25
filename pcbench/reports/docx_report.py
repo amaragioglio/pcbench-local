@@ -6,14 +6,13 @@ from typing import Any
 from xml.sax.saxutils import escape
 from zipfile import ZIP_DEFLATED, ZipFile
 
+from pcbench.reports.paths import ensure_reports_dir
 
-REPORTS_DIR = Path("reports")
 
-
-def save_docx_report(report: dict[str, Any]) -> Path:
-    REPORTS_DIR.mkdir(exist_ok=True)
+def save_docx_report(report: dict[str, Any], output_dir: Path | str | None = None) -> Path:
+    reports_dir = ensure_reports_dir(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = REPORTS_DIR / f"pcbench_report_{timestamp}.docx"
+    path = reports_dir / f"pcbench_report_{timestamp}.docx"
     paragraphs = _build_paragraphs(report)
     with ZipFile(path, "w", compression=ZIP_DEFLATED) as archive:
         archive.writestr("[Content_Types].xml", _content_types())

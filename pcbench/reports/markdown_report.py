@@ -4,14 +4,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pcbench.reports.paths import ensure_reports_dir
 
-REPORTS_DIR = Path("reports")
 
-
-def save_markdown_report(report: dict[str, Any]) -> Path:
-    REPORTS_DIR.mkdir(exist_ok=True)
+def save_markdown_report(report: dict[str, Any], output_dir: Path | str | None = None) -> Path:
+    reports_dir = ensure_reports_dir(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = REPORTS_DIR / f"pcbench_report_{timestamp}.md"
+    path = reports_dir / f"pcbench_report_{timestamp}.md"
     path.write_text(render_markdown(report), encoding="utf-8")
     return path
 

@@ -5,14 +5,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pcbench.reports.paths import ensure_reports_dir
 
-REPORTS_DIR = Path("reports")
 
-
-def save_html_report(report: dict[str, Any], json_path: Path | None = None) -> Path:
-    REPORTS_DIR.mkdir(exist_ok=True)
+def save_html_report(report: dict[str, Any], json_path: Path | None = None, output_dir: Path | str | None = None) -> Path:
+    reports_dir = ensure_reports_dir(output_dir)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    path = REPORTS_DIR / f"pcbench_report_{timestamp}.html"
+    path = reports_dir / f"pcbench_report_{timestamp}.html"
     path.write_text(_render_html(report, json_path), encoding="utf-8")
     return path
 
