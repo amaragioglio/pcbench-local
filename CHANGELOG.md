@@ -35,3 +35,4 @@
 - Added PyInstaller spec and tag-driven Windows release workflow.
 - Added local SQLite run history with `pcbench history`.
 - Added inline HTML score trend charts backed by SQLite history.
+- Added weekly schedule command with Windows Scheduled Task support and cron guidance.

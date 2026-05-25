@@ -135,6 +135,18 @@ Show local SQLite history:
 .\.venv\Scripts\python.exe main.py history --limit 10
 ```
 
+Preview weekly scheduling:
+
+```powershell
+.\.venv\Scripts\python.exe main.py schedule --dry-run
+```
+
+Install a weekly Windows Scheduled Task:
+
+```powershell
+.\.venv\Scripts\python.exe main.py schedule
+```
+
 ## Options
 
 ```powershell
