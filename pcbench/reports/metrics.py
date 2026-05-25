@@ -8,13 +8,20 @@ MetricRow = dict[str, Any]
 
 def build_dashboard(report: dict[str, Any]) -> dict[str, Any]:
     results = report.get("results", {})
+
+    def _live(key: str) -> dict | None:
+        data = results.get(key)
+        if isinstance(data, dict) and data.get("status") == "failed":
+            return None
+        return data
+
     rows = [
-        _cpu_score(results.get("cpu_benchmark")),
-        _ram_score(results.get("memory_benchmark")),
-        _disk_score(results.get("disk_benchmark")),
-        _network_score(results.get("network_benchmark")),
-        _gpu_score(results.get("gpu_benchmark")),
-        _security_score(results.get("security_audit")),
+        _cpu_score(_live("cpu_benchmark")),
+        _ram_score(_live("memory_benchmark")),
+        _disk_score(_live("disk_benchmark")),
+        _network_score(_live("network_benchmark")),
+        _gpu_score(_live("gpu_benchmark")),
+        _security_score(_live("security_audit")),
     ]
     rows = [row for row in rows if row is not None]
     overall = round(sum(row["score"] for row in rows) / len(rows), 1) if rows else None

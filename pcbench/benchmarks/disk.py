@@ -52,6 +52,7 @@ def run_disk_benchmark(test_mib: int = DEFAULT_TEST_MIB) -> dict[str, Any]:
         "notes": [
             "Benchmark de archivo temporal local.",
             "Los resultados pueden variar por cache del sistema, antivirus y carga del disco.",
+            "La metrica de latencia mide overhead de fsync sobre 128 escrituras de 4 KiB ciclando los primeros 512 KiB del archivo, no latencia de sectores fisicos arbitrarios.",
         ],
     }
 
@@ -97,10 +98,11 @@ def _read_test_file(path: Path, size_bytes: int) -> dict[str, Any]:
 def _latency_test(path: Path) -> dict[str, Any]:
     samples_ms: list[float] = []
     block = b"\0" * LATENCY_BLOCK_BYTES
+    file_size = max(LATENCY_BLOCK_BYTES, path.stat().st_size)
 
     with path.open("r+b") as file:
         for sample in range(LATENCY_SAMPLES):
-            offset = (sample * LATENCY_BLOCK_BYTES) % max(LATENCY_BLOCK_BYTES, path.stat().st_size)
+            offset = (sample * LATENCY_BLOCK_BYTES) % file_size
             started = time.perf_counter()
             file.seek(offset)
             file.write(block)
@@ -115,6 +117,7 @@ def _latency_test(path: Path) -> dict[str, Any]:
         "median_ms": round(statistics.median(samples_ms), 3),
         "min_ms": round(min(samples_ms), 3),
         "max_ms": round(max(samples_ms), 3),
+        "measurement": "fsync_overhead",
     }
 
 

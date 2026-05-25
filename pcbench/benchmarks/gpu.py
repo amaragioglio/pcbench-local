@@ -8,14 +8,16 @@ BYTES_IN_MIB = 1024**2
 
 
 def run_gpu_benchmark() -> dict[str, Any]:
-    wmi_gpus = _collect_wmi_gpus()
-    gputil_gpus = _collect_gputil_gpus()
+    wmi_gpus, wmi_error = _collect_wmi_gpus()
+    gputil_gpus, gputil_error = _collect_gputil_gpus()
     nvidia_smi = _collect_nvidia_smi()
 
     return {
         "detected_count": len(wmi_gpus) or len(gputil_gpus),
         "wmi": wmi_gpus,
+        "wmi_error": wmi_error,
         "gputil": gputil_gpus,
+        "gputil_error": gputil_error,
         "nvidia_smi": nvidia_smi,
         "notes": [
             "Inventario de GPU y metricas disponibles del driver.",
@@ -24,14 +26,14 @@ def run_gpu_benchmark() -> dict[str, Any]:
     }
 
 
-def _collect_wmi_gpus() -> list[dict[str, Any]]:
+def _collect_wmi_gpus() -> tuple[list[dict[str, Any]], str | None]:
     try:
         import wmi
 
         connection = wmi.WMI()
         controllers = connection.Win32_VideoController()
     except Exception as error:
-        return [{"status": "failed", "error": str(error)}]
+        return [], str(error)
 
     gpus: list[dict[str, Any]] = []
     for controller in controllers:
@@ -53,31 +55,34 @@ def _collect_wmi_gpus() -> list[dict[str, Any]]:
                 "current_refresh_rate": _safe_int(getattr(controller, "CurrentRefreshRate", None)),
             }
         )
-    return gpus
+    return gpus, None
 
 
-def _collect_gputil_gpus() -> list[dict[str, Any]]:
+def _collect_gputil_gpus() -> tuple[list[dict[str, Any]], str | None]:
     try:
         import GPUtil
 
         gpus = GPUtil.getGPUs()
     except Exception as error:
-        return [{"status": "failed", "error": str(error)}]
+        return [], str(error)
 
-    return [
-        {
-            "id": gpu.id,
-            "name": gpu.name,
-            "driver": gpu.driver,
-            "load_percent": round(gpu.load * 100, 2),
-            "memory_total_mib": gpu.memoryTotal,
-            "memory_used_mib": gpu.memoryUsed,
-            "memory_free_mib": gpu.memoryFree,
-            "temperature_c": gpu.temperature,
-            "uuid": gpu.uuid,
-        }
-        for gpu in gpus
-    ]
+    return (
+        [
+            {
+                "id": gpu.id,
+                "name": gpu.name,
+                "driver": gpu.driver,
+                "load_percent": round(gpu.load * 100, 2),
+                "memory_total_mib": gpu.memoryTotal,
+                "memory_used_mib": gpu.memoryUsed,
+                "memory_free_mib": gpu.memoryFree,
+                "temperature_c": gpu.temperature,
+                "uuid": gpu.uuid,
+            }
+            for gpu in gpus
+        ],
+        None,
+    )
 
 
 def _collect_nvidia_smi() -> dict[str, Any]:

@@ -27,6 +27,18 @@ from pcbench.terminal_ui import print_report_summary, run_step
 Emit = Callable[[str], None]
 
 
+def _safe_step(
+    console: Console,
+    title: str,
+    task: Callable[[Callable[[str], None]], Any],
+) -> Any:
+    try:
+        return run_step(console, title, task)
+    except Exception as error:  # noqa: BLE001 — we want any module failure isolated.
+        console.print(f"[warn]FAIL[/warn] [muted]{title}[/muted] :: {type(error).__name__}: {error}")
+        return {"status": "failed", "error": f"{type(error).__name__}: {error}"}
+
+
 def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     started_at = datetime.now().astimezone()
     report: dict[str, Any] = {
@@ -48,7 +60,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     )
     step = 1
 
-    system_info = run_step(
+    system_info = _safe_step(
         console,
         f"[{step}/{total_steps}] SYSINFO // fingerprint local",
         lambda emit: _with_events(emit, ["Consultando OS, CPU, RAM, discos e IP"], collect_basic_system_info),
@@ -58,7 +70,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     memory_benchmark = None
     if not args.skip_ram:
         step += 1
-        memory_benchmark = run_step(
+        memory_benchmark = _safe_step(
             console,
             f"[{step}/{total_steps}] RAM // asignacion y ancho de banda",
             lambda emit: _with_events(
@@ -72,7 +84,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     cpu_benchmark = None
     if not args.skip_cpu:
         step += 1
-        cpu_benchmark = run_step(
+        cpu_benchmark = _safe_step(
             console,
             f"[{step}/{total_steps}] CPU // single-core + multi-core",
             lambda emit: _with_events(
@@ -86,7 +98,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     disk_benchmark = None
     if not args.skip_disk:
         step += 1
-        disk_benchmark = run_step(
+        disk_benchmark = _safe_step(
             console,
             f"[{step}/{total_steps}] DISK // lectura escritura latencia",
             lambda emit: _with_events(
@@ -100,7 +112,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     network_benchmark = None
     if not args.skip_network:
         step += 1
-        network_benchmark = run_step(
+        network_benchmark = _safe_step(
             console,
             f"[{step}/{total_steps}] NET // ping dns tcp",
             lambda emit: _with_events(
@@ -114,7 +126,7 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     gpu_benchmark = None
     if not args.skip_gpu:
         step += 1
-        gpu_benchmark = run_step(
+        gpu_benchmark = _safe_step(
             console,
             f"[{step}/{total_steps}] GPU // driver vram sensores",
             lambda emit: _with_events(
@@ -128,12 +140,12 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
     security_audit = None
     if not args.skip_security:
         step += 1
-        security_audit = run_step(
+        security_audit = _safe_step(
             console,
-            f"[{step}/{total_steps}] SEC // defender firewall puertos",
+            f"[{step}/{total_steps}] SEC // auditoria local",
             lambda emit: _with_events(
                 emit,
-                ["Consultando Defender", "Consultando firewall", "Enumerando puertos y conexiones", "Revisando inicio automatico"],
+                ["Detectando plataforma", "Consultando firewall/seguridad", "Enumerando puertos y conexiones", "Revisando usuarios y servicios"],
                 run_security_audit,
             ),
         )
@@ -162,13 +174,13 @@ def run_benchmarks(args: Any, console: Console) -> dict[str, Path | None]:
 
     print_report_summary(
         console,
-        system_info,
-        memory_benchmark,
-        cpu_benchmark,
-        disk_benchmark,
-        network_benchmark,
-        gpu_benchmark,
-        security_audit,
+        _live_or_none(system_info),
+        _live_or_none(memory_benchmark),
+        _live_or_none(cpu_benchmark),
+        _live_or_none(disk_benchmark),
+        _live_or_none(network_benchmark),
+        _live_or_none(gpu_benchmark),
+        _live_or_none(security_audit),
         json_path,
         html_path,
         document_path,
@@ -195,3 +207,9 @@ def _profile_name(args: Any) -> str:
 def _selected_reports(args: Any) -> set[str]:
     raw = getattr(args, "reports", None) or "json,html,docx,md"
     return {item.strip().lower() for item in raw.split(",") if item.strip()}
+
+
+def _live_or_none(data: Any) -> Any:
+    if isinstance(data, dict) and data.get("status") == "failed":
+        return None
+    return data

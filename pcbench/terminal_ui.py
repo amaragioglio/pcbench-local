@@ -51,7 +51,7 @@ def run_step(console: Console, title: str, task: Callable[[Callable[[str], None]
 
 def print_report_summary(
     console: Console,
-    system_info: dict,
+    system_info: dict | None,
     memory_benchmark: dict | None,
     cpu_benchmark: dict | None,
     disk_benchmark: dict | None,
@@ -78,14 +78,17 @@ def print_report_summary(
 
     _section(console, "RESUMEN")
 
-    machine = system_info["machine"]
-    cpu = system_info["cpu"]
-    ram = system_info["ram"]
-    _kv(console, "Sistema", f"{machine['system']} {machine['release']} ({machine['architecture']})")
-    _kv(console, "CPU", f"{cpu['brand']} | {cpu['physical_cores']} cores / {cpu['logical_threads']} threads")
-    _kv(console, "RAM", f"{ram['total_gib']} GiB total | {ram['available_gib']} GiB disponible")
-    _kv(console, "Discos", len(system_info["disks"]))
-    _kv(console, "IP local", system_info["network"]["local_ip"] or "No detectada")
+    if system_info:
+        machine = system_info["machine"]
+        cpu = system_info["cpu"]
+        ram = system_info["ram"]
+        _kv(console, "Sistema", f"{machine['system']} {machine['release']} ({machine['architecture']})")
+        _kv(console, "CPU", f"{cpu['brand']} | {cpu['physical_cores']} cores / {cpu['logical_threads']} threads")
+        _kv(console, "RAM", f"{ram['total_gib']} GiB total | {ram['available_gib']} GiB disponible")
+        _kv(console, "Discos", len(system_info["disks"]))
+        _kv(console, "IP local", system_info["network"]["local_ip"] or "No detectada")
+    else:
+        _metric(console, "Sistema", "fallo en SYSINFO", "warn")
 
     if memory_benchmark:
         console.print()
@@ -144,6 +147,15 @@ def print_report_summary(
         _bar_metric(console, "Warnings", summary["warning"], "", max(summary["warning"], 5), lower_is_better=True)
         _kv(console, "Puertos escucha", len(security_audit["listening_ports"]))
         _kv(console, "Conexiones activas", security_audit["active_connections"]["established_count"])
+        if security_audit.get("platform"):
+            _kv(console, "Plataforma audit", security_audit["platform"])
+        if "local_admins" in security_audit:
+            local_admins = security_audit["local_admins"].get("data") or []
+            _kv(console, "Admins locales", len(local_admins))
+        if "sudo_users" in security_audit:
+            _kv(console, "Sudo users", security_audit["sudo_users"].get("count", 0))
+        if "services" in security_audit:
+            _kv(console, "Servicios", security_audit["services"].get("active_count") or "No disponible")
         for finding in security_audit["findings"][:5]:
             style = "ok" if finding["severity"] == "ok" else "warn" if finding["severity"] == "warning" else "muted"
             _metric(console, finding["area"], f"{finding['severity']}: {finding['message']}", style)

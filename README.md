@@ -12,6 +12,7 @@ La interfaz esta pensada para terminal: logs en vivo, barras de metricas y repor
 - Red: ping, jitter, DNS y conectividad TCP.
 - GPU: deteccion, VRAM, uso y temperatura si el driver lo expone.
 - Seguridad local: Defender, firewall, puertos, conexiones, admins e inicio automatico.
+- Seguridad Linux: firewall basico, sudo users, puertos, conexiones, servicios systemd y deteccion de contenedor.
 - Reportes JSON, HTML y DOCX compatible con OnlyOffice.
 - Reporte Markdown para GitHub/issues.
 - Dashboard con score general y estado por categoria.
@@ -190,6 +191,7 @@ Notas importantes de Docker:
 - Benchmarks de disco miden el filesystem montado del contenedor o volumen.
 - GPU requiere configuracion extra, por ejemplo NVIDIA Container Toolkit en Linux.
 - Seguridad de Windows Defender/firewall no aplica dentro de un contenedor Linux.
+- En Linux/Docker se usa auditoria Linux de solo lectura.
 - Para diagnostico real de una PC Windows, es mejor correrlo localmente en Windows.
 
 ## Estructura

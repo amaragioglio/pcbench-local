@@ -39,7 +39,7 @@ PRESETS = {
 }
 
 
-def configure_interactive(args: argparse.Namespace, console: Console) -> argparse.Namespace:
+def configure_interactive(args: argparse.Namespace, console: Console) -> argparse.Namespace | None:
     console.print()
     console.print("[accent]PCBENCH WIZARD[/accent] [muted]// configuracion interactiva[/muted]")
     console.print("[muted]Presets disponibles:[/muted]")
@@ -76,7 +76,8 @@ def configure_interactive(args: argparse.Namespace, console: Console) -> argpars
 
     _print_execution_plan(console, preset["label"], str(profile), str(scope), reports, args)
     if not Confirm.ask("Ejecutar ahora?", default=True, console=console):
-        raise SystemExit("Ejecucion cancelada por el usuario.")
+        console.print("[muted]Ejecucion cancelada por el usuario.[/muted]")
+        return None
 
     return args
 

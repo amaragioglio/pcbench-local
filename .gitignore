@@ -5,6 +5,7 @@ venv/
 env/
 .env
 .env.*
+.claude/
 /reports/
 /.baseline/
 *.log
