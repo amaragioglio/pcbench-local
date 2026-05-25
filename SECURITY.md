@@ -39,3 +39,14 @@ If execution is interrupted with `Ctrl+C`, PCBench attempts to remove the disk b
 - Do not store credentials or tokens in reports.
 - Do not run destructive commands from audits.
 - Keep security checks read-only unless a future command clearly asks the user for remediation.
+
+## Outbound Network Scope
+
+Network checks only run when the network module is enabled. Default outbound targets are:
+
+- `1.1.1.1` for ping latency.
+- `1.1.1.1:443` for TCP connectivity.
+- `google.com:443` for DNS resolution timing.
+- Speedtest servers selected by `speedtest-cli` only when `--speedtest` is explicitly enabled.
+
+Users can change ping and DNS targets with `--ping-host` and `--dns-host`.

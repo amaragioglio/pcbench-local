@@ -25,3 +25,6 @@
 - Added privilege-scope detection and partial security audit markers.
 - Added local rotating runtime log at `reports/pcbench.log`.
 - Added `Ctrl+C` cleanup for disk benchmark temporary files.
+- Hardened Docker runtime with a non-root user.
+- Expanded CI dependency audit to all requirements files.
+- Documented outbound network targets.

@@ -23,4 +23,7 @@ jobs:
       - name: Smoke test
         run: python main.py run --no-save --quick --skip-security --skip-gpu --skip-network
       - name: Dependency audit
-        run: python -m pip_audit -r requirements.txt
+        run: |
+          python -m pip_audit -r requirements.txt
+          python -m pip_audit -r requirements-dev.txt
+          python -m pip_audit -r requirements-windows.txt
