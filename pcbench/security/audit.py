@@ -7,6 +7,7 @@ from typing import Any
 
 import psutil
 
+from pcbench.elevation import is_windows_admin
 from pcbench.security.linux_audit import run_linux_security_audit
 
 
@@ -50,9 +51,7 @@ def run_security_audit() -> dict[str, Any]:
 
 def _collect_privileges() -> dict[str, Any]:
     try:
-        import ctypes
-
-        is_admin = bool(ctypes.windll.shell32.IsUserAnAdmin())
+        is_admin = is_windows_admin()
         return {
             "status": "passed",
             "is_admin": is_admin,

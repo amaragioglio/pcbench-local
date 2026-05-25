@@ -28,3 +28,5 @@
 - Hardened Docker runtime with a non-root user.
 - Expanded CI dependency audit to all requirements files.
 - Documented outbound network targets.
+- Added Phase 3 foundation: version flag, output directory, report retention and English UI/report strings.
+- Added Phase 4 UX: numbered wizard, Windows setup launcher, HTML open prompt and optional UAC elevation.

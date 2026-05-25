@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from pcbench import __version__
+from pcbench.elevation import is_windows_admin, relaunch_elevated
 from pcbench.reports.compare import compare_latest_reports, compare_reports
 from pcbench.runner import run_benchmarks
 from pcbench.terminal_ui import build_console, print_comparison, print_header
@@ -128,6 +129,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Skip the local security audit.",
     )
     parser.add_argument(
+        "--elevate",
+        action="store_true",
+        help="On Windows, relaunch through UAC before running.",
+    )
+    parser.add_argument(
         "--base",
         type=Path,
         default=None,
@@ -153,6 +159,11 @@ def main() -> None:
     args = parser.parse_args()
     _apply_profile(args)
     console = build_console()
+
+    if args.elevate and not is_windows_admin():
+        if relaunch_elevated():
+            return
+        console.print("[warn]WARN[/warn] Could not request elevation. Continuing in the current session.")
 
     print_header(console, __version__)
 

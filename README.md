@@ -46,6 +46,12 @@ Development on Windows:
 .\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
 ```
 
+Guided Windows setup:
+
+```powershell
+.\setup.bat
+```
+
 Linux/macOS:
 
 ```bash
@@ -132,6 +138,7 @@ Compare specific files:
 .\.venv\Scripts\python.exe main.py run --reports json,html,supabase
 .\.venv\Scripts\python.exe main.py run --sanitize
 .\.venv\Scripts\python.exe main.py run --output-dir .\reports --keep-last 20
+.\.venv\Scripts\python.exe main.py run --elevate
 ```
 
 ## Reports

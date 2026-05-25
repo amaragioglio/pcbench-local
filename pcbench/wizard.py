@@ -7,6 +7,12 @@ from rich.prompt import Confirm, Prompt
 
 
 REPORT_CHOICES = {"json", "html", "docx", "md", "supabase"}
+PRESET_NUMBERS = {
+    "1": "quick",
+    "2": "full",
+    "3": "supabase",
+    "4": "custom",
+}
 PRESETS = {
     "quick": {
         "label": "Quick scan",
@@ -43,12 +49,13 @@ def configure_interactive(args: argparse.Namespace, console: Console) -> argpars
     console.print()
     console.print("[accent]PCBENCH WIZARD[/accent] [muted]// interactive configuration[/muted]")
     console.print("[muted]Available presets:[/muted]")
-    console.print("  [label]quick[/label]    Quick scan: CPU/RAM/DISK + lightweight reports")
-    console.print("  [label]full[/label]     Full diagnostic: every module")
-    console.print("  [label]supabase[/label] Supabase pipeline: core + flat JSON")
-    console.print("  [label]custom[/label]   Manual configuration")
+    console.print("  [label]1[/label] Quick scan       CPU/RAM/DISK + lightweight reports")
+    console.print("  [label]2[/label] Full diagnostic  Every module")
+    console.print("  [label]3[/label] Supabase export  Core benchmark + flat JSON")
+    console.print("  [label]4[/label] Custom           Manual configuration")
 
-    preset_name = Prompt.ask("Preset", choices=list(PRESETS), default="quick", console=console)
+    preset_choice = Prompt.ask("Preset", choices=list(PRESET_NUMBERS), default="1", console=console)
+    preset_name = _preset_from_choice(preset_choice)
     preset = PRESETS[preset_name]
 
     if preset_name == "custom":
@@ -150,3 +157,7 @@ def _parse_reports(value: str) -> list[str]:
         if item in REPORT_CHOICES and item not in selected:
             selected.append(item)
     return selected
+
+
+def _preset_from_choice(value: str) -> str:
+    return PRESET_NUMBERS[value]
