@@ -30,3 +30,5 @@
 - Documented outbound network targets.
 - Added Phase 3 foundation: version flag, output directory, report retention and English UI/report strings.
 - Added Phase 4 UX: numbered wizard, Windows setup launcher, HTML open prompt and optional UAC elevation.
+- Replaced GPUtil/py3nvml with NVIDIA NVML bindings through `nvidia-ml-py`.
+- Removed `speedtest-cli` from core dependencies; `--speedtest` is now optional.

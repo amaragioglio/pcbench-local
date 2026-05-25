@@ -167,6 +167,14 @@ The Supabase export contains these flat table keys:
 
 Each key contains rows designed for import or insert into Supabase tables.
 
+## Optional Speedtest
+
+`--speedtest` requires the optional `speedtest-cli` package:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install speedtest-cli
+```
+
 ## Docker
 
 Build image:
