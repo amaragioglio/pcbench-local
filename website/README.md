@@ -52,6 +52,23 @@ Luego visita `http://localhost:8000`.
 - **Video**: reservado para el hero o el proceso; usar Pexels Videos
   (real, sin IA) con póster de imagen y sin autoplay en móvil.
 
+## Conectar Formspree (medición de leads)
+
+El formulario ya envía por AJAX a Formspree y registra en cada lead el
+**origen** (colombia, mexico, venezuela, guatemala, brasil o atlas) y la
+página desde la que se envió. Solo falta el ID de tu cuenta:
+
+1. Crea una cuenta gratis en <https://formspree.io> (con tu Gmail).
+2. Crea un formulario nuevo; te dará una URL tipo
+   `https://formspree.io/f/xayzabcd`.
+3. En `script.js`, reemplaza `TU_ID_AQUI` por esa parte final
+   (ej. `xayzabcd`) en la línea `const FORMSPREE_ID = ...`.
+
+Mientras el ID siga siendo el placeholder, el formulario no pierde leads:
+abre un correo pre-llenado como respaldo. Si Formspree falla en algún
+envío, también cae a ese respaldo. El plan gratis de Formspree incluye
+50 envíos/mes — suficiente para el smoke test.
+
 ## Publicar en GitHub Pages
 
 1. En GitHub: *Settings → Pages*.

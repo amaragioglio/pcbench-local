@@ -110,24 +110,69 @@ if (stickyCta && leadBlock) {
   window.addEventListener("scroll", updateCta, { passive: true });
 }
 
-// ===== Captura de leads =====
-// Fase smoke test: sin backend, el envío abre un correo pre-llenado.
-// Para medir conversión real, sustituir por un endpoint de Formspree/Tally:
-//   fetch('https://formspree.io/f/TU_ID', { method: 'POST', body: new FormData(form) })
+// ===== Captura de leads (Formspree) =====
+// Configuración: crea un formulario gratis en https://formspree.io con tu
+// correo, copia el ID (la parte final de https://formspree.io/f/XXXXXXXX)
+// y pégalo aquí. Mientras el ID sea el placeholder, el formulario usa un
+// mailto como respaldo para no perder ningún lead.
+const FORMSPREE_ID = "TU_ID_AQUI";
+
 const leadForm = document.getElementById("leadForm");
 
 if (leadForm) {
-  leadForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const email = leadForm.querySelector("input[name=email]").value;
+  const button = leadForm.querySelector("button");
+  const emailInput = leadForm.querySelector("input[name=email]");
+
+  function showSuccess() {
+    leadForm.innerHTML =
+      '<p class="lead-success">¡Gracias! Estás en la lista. ' +
+      "Te llegará la primera historia muy pronto. ☕</p>";
+  }
+
+  function mailtoFallback(email) {
     const subject = encodeURIComponent("Join la lista — Orígenes Coffee");
     const body = encodeURIComponent(
-      `I want in!\n\nMy email: ${email}\nMy origin (country): `
+      `I want in!\n\nMy email: ${email}\nMy origin (country): ${leadForm.dataset.origen || ""}`
     );
     window.location.href = `mailto:andresmaragiogliop@gmail.com?subject=${subject}&body=${body}`;
-    const button = leadForm.querySelector("button");
     button.textContent = "¡Gracias!";
     setTimeout(() => (button.textContent = "I want in"), 4000);
+  }
+
+  leadForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = emailInput.value;
+
+    if (FORMSPREE_ID === "TU_ID_AQUI") {
+      mailtoFallback(email);
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Enviando…";
+
+    try {
+      const data = new FormData(leadForm);
+      data.append("origen", leadForm.dataset.origen || "atlas");
+      data.append("pagina", window.location.pathname);
+      data.append("_subject", "Nuevo lead — Orígenes Coffee");
+
+      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+
+      if (res.ok) {
+        showSuccess();
+      } else {
+        throw new Error(`Formspree ${res.status}`);
+      }
+    } catch (err) {
+      button.disabled = false;
+      button.textContent = "I want in";
+      mailtoFallback(email);
+    }
   });
 }
 

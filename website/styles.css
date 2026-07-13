@@ -681,6 +681,14 @@ img {
   color: var(--ink-soft);
 }
 
+.lead-success {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 1.3rem;
+  color: var(--tema);
+  padding: 0.6rem 0;
+}
+
 /* ===== CTA fijo (solo móvil) ===== */
 .sticky-cta {
   position: fixed;
