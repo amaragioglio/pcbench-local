@@ -69,7 +69,37 @@ abre un correo pre-llenado como respaldo. Si Formspree falla en algún
 envío, también cae a ese respaldo. El plan gratis de Formspree incluye
 50 envíos/mes — suficiente para el smoke test.
 
-## Publicar en GitHub Pages
+## Deploy con Vercel (recomendado)
+
+El sitio es estático puro — no necesita build. Ya incluye `vercel.json`
+con URLs limpias (`/colombia` en vez de `/colombia.html`), caché inmutable
+para `assets/` y cabeceras de seguridad básicas.
+
+**Opción A — desde el dashboard (recomendada):**
+
+1. Entra a <https://vercel.com/new> e importa el repo
+   `amaragioglio/pcbench-local` (conecta tu GitHub si es la primera vez).
+2. En la configuración del proyecto: **Root Directory → `website`**,
+   Framework Preset → *Other*, sin build command ni output directory.
+3. En *Settings → Git*, elige la rama a desplegar (o haz merge de la rama
+   de trabajo a `main` primero).
+4. Deploy. Tendrás `https://<proyecto>.vercel.app` en segundos; cada push
+   a la rama re-despliega solo.
+
+**Opción B — CLI:**
+
+```bash
+npm i -g vercel
+cd website
+vercel          # primera vez: login + configurar
+vercel --prod   # producción
+```
+
+Después del deploy: activa **Vercel Analytics** (pestaña Analytics del
+proyecto, un clic) para medir visitas por página sin cookies, y añade el
+dominio final en las metas `og:image` si usas dominio propio.
+
+## Publicar en GitHub Pages (alternativa)
 
 1. En GitHub: *Settings → Pages*.
 2. Source: *Deploy from a branch*, rama `main`, carpeta `/website`
