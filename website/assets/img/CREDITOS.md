@@ -21,6 +21,11 @@ finca/cafetería.
 | cafe-producto.jpg | 1611854779393-1b2da9d400fe | El café |
 | cafe-granos-taza.jpg | 1625021659159-f63f546d74a7 | El café |
 | cafe-taza-vapor.jpg | 1497515114629-f71d768fd07c | El café |
+| origen-guatemala.jpg | 1660670172925-09d60dcdd949 | Origins — Guatemala (lago Atitlán, foto de Ryan Doyle) |
+| origen-mexico.jpg | 1547995886-6dc09384c6e6 | Origins — México (Guanajuato) |
+| origen-colombia.jpg | 1583531352515-8884af319dc1 | Origins — Colombia (Cartagena) |
+| historia-papel-picado.jpg | 1512813195386-6cf811ad3542 | Stories — papel picado |
+| historia-zocalo.jpg | 1585464231875-d9ef1f5ad396 | (reserva — Zócalo CDMX) |
 | historia-amigos.jpg | 1495474472287-4d71bcdd2085 | Historias |
 | historia-barra.jpg | 1453614512568-c4024d13c247 | Historias |
 | historia-letrero.jpg | 1501339847302-ac426a4a7cbb | Historias |

@@ -1,11 +1,15 @@
-# Café Origen — Sitio web
+# Orígenes Coffee — Sitio web
 
-Sitio web de una marca de café con historia de origen (finca + cafetería +
-revista). Estático, sin dependencias ni build: solo HTML, CSS y JavaScript.
-La dirección de diseño está documentada en [INVESTIGACION.md](INVESTIGACION.md).
+Marca de café con memoria cultural, dirigida a latinos de segunda y tercera
+generación en EE.UU. que conectan con el café de su tierra familiar
+(Guatemala, México, Colombia). Editorial bilingüe, principalmente en inglés
+con acentos en español. Es un **smoke test**: las historias son culturales
+e históricas por región (no de trazabilidad de granos), y el CTA es unirse
+a la lista de lanzamiento.
 
-El nombre "Café Origen" es provisional. Las fotos son reales (Unsplash,
-sin IA) y también provisionales — ver `assets/img/CREDITOS.md`.
+Estático, sin dependencias ni build: solo HTML, CSS y JavaScript. La
+dirección de diseño está en [INVESTIGACION.md](INVESTIGACION.md). Las fotos
+son reales (Unsplash, sin IA) y provisionales — ver `assets/img/CREDITOS.md`.
 
 ## Estructura
 

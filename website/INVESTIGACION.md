@@ -96,7 +96,27 @@ Reglas de uso:
 - Todas las fotos de banco son provisionales: se reemplazarán por fotografía
   propia de la finca/cafetería cuando exista.
 
-## 6. Dirección de diseño definida
+## 6. Posicionamiento de marca (actualización)
+
+**Orígenes Coffee** — café con memoria cultural. Público objetivo: latinos
+de segunda y tercera generación en EE.UU. (guatemaltecos, mexicanos,
+colombianos) que conectan emocionalmente con el café de su tierra familiar
+— "el café que tomaba la abuela".
+
+- **Idioma**: editorial bilingüe, principalmente inglés con acentos en
+  español (abuela, café de olla, tinto, la lista).
+- **Historias**: culturales e históricas por región — no de trazabilidad de
+  granos (aún no disponible). Ejemplos: la llegada del café a Chiapas "de
+  contrabando", las adelitas y el café de olla en la Revolución, la leyenda
+  del cura de Salazar de las Palmas en Colombia, el ritual del tinto.
+  Los datos históricos se redactan como relato ("the story goes...",
+  "legend has it...") mientras no estén verificados a fondo.
+- **Smoke test**: el objetivo del sitio es validar interés. CTA principal:
+  unirse a la lista de lanzamiento ("Join la lista"). Por ahora es un
+  mailto; puede sustituirse por un formulario (Tally, Mailchimp) para medir
+  conversión.
+
+## 7. Dirección de diseño definida
 
 **Concepto**: una marca de café con historia de origen — mezcla de
 *marca de café + finca + revista*. El sitio cuenta el viaje del grano

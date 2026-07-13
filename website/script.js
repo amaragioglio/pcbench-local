@@ -29,7 +29,7 @@ navLinks.querySelectorAll("a").forEach((link) => {
 
 // ===== Aparición suave al hacer scroll =====
 const revealTargets = document.querySelectorAll(
-  ".section-title, .kicker, .editorial-text, .editorial-media, .step, .card, .story, .visit-grid > *, .section-intro"
+  ".section-title, .kicker, .editorial-text, .editorial-media, .origin, .card, .story, .visit-grid > *, .section-intro"
 );
 revealTargets.forEach((el) => el.classList.add("reveal"));
 
