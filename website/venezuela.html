@@ -22,23 +22,27 @@
       </button>
       <ul class="topnav" id="topnav">
         <li><a href="index.html#atlas">The Atlas</a></li>
-        <li><a href="index.html#manifesto">Manifesto</a></li>
         <li><a href="#unete">Join la lista</a></li>
       </ul>
     </div>
   </header>
 
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
   <main>
-    <div class="feature-hero">
+    <div class="feature-hero" id="featureHero">
       <img src="assets/img/venezuela-hero.jpg"
            srcset="assets/img/venezuela-hero-sm.jpg 960w, assets/img/venezuela-hero.jpg 1920w"
            sizes="100vw" fetchpriority="high" alt="Angel Falls dropping from the tepui, Canaima National Park, Venezuela">
+      <div class="feature-shade"></div>
+      <div class="feature-title container">
+        <span class="label label-onimage">Origins · Vol. I — Nº 03</span>
+        <h1 class="stagger"><span class="line"><span>Venezuela</span></span></h1>
+      </div>
     </div>
 
     <header class="feature-head">
       <div class="container">
-        <span class="label">Origins · Vol. I — Nº 03</span>
-        <h1>Venezuela</h1>
         <p class="feature-deck">Before oil, Venezuela ran on coffee — and in its kitchens, it still does.</p>
       </div>
     </header>
@@ -130,10 +134,12 @@
           <input type="email" name="email" placeholder="you@email.com" required aria-label="Email address">
           <button type="submit">I want in</button>
         </form>
-        <p class="lead-note">No spam. Solo café e historias.</p>
+        <p class="lead-note">No spam. Solo café, historias reales y fotografía real — <em>nada de IA</em>.</p>
       </div>
     </section>
   </main>
+
+  <a class="sticky-cta" id="stickyCta" href="#unete">Join la lista ↓</a>
 
   <footer class="footer">
     <div class="container footer-grid">

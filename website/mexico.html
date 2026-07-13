@@ -22,23 +22,27 @@
       </button>
       <ul class="topnav" id="topnav">
         <li><a href="index.html#atlas">The Atlas</a></li>
-        <li><a href="index.html#manifesto">Manifesto</a></li>
         <li><a href="#unete">Join la lista</a></li>
       </ul>
     </div>
   </header>
 
+  <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+
   <main>
-    <div class="feature-hero">
+    <div class="feature-hero" id="featureHero">
       <img src="assets/img/mexico-hero.jpg"
            srcset="assets/img/mexico-hero-sm.jpg 960w, assets/img/mexico-hero.jpg 1920w"
            sizes="100vw" fetchpriority="high" alt="Colorful hillside city of Guanajuato, México">
+      <div class="feature-shade"></div>
+      <div class="feature-title container">
+        <span class="label label-onimage">Origins · Vol. I — Nº 02</span>
+        <h1 class="stagger"><span class="line"><span>México</span></span></h1>
+      </div>
     </div>
 
     <header class="feature-head">
       <div class="container">
-        <span class="label">Origins · Vol. I — Nº 02</span>
-        <h1>México</h1>
         <p class="feature-deck">Seeds across a border, a clay pot on the fire: in México, coffee is a story of movement.</p>
       </div>
     </header>
@@ -131,10 +135,12 @@
           <input type="email" name="email" placeholder="you@email.com" required aria-label="Email address">
           <button type="submit">I want in</button>
         </form>
-        <p class="lead-note">No spam. Solo café e historias.</p>
+        <p class="lead-note">No spam. Solo café, historias reales y fotografía real — <em>nada de IA</em>.</p>
       </div>
     </section>
   </main>
+
+  <a class="sticky-cta" id="stickyCta" href="#unete">Join la lista ↓</a>
 
   <footer class="footer">
     <div class="container footer-grid">

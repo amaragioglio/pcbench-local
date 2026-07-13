@@ -49,6 +49,67 @@ revealTargets.forEach((el) => {
   revealObserver.observe(el);
 });
 
+// ===== Parallax sutil del hero (páginas de país) =====
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const featureHero = document.getElementById("featureHero");
+
+if (featureHero && !reducedMotion) {
+  const heroImg = featureHero.querySelector("img");
+  let ticking = false;
+
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const y = Math.min(window.scrollY, featureHero.offsetHeight);
+        heroImg.style.transform = `translateY(${y * 0.18}px)`;
+        ticking = false;
+      });
+    },
+    { passive: true }
+  );
+}
+
+// ===== Barra de progreso de lectura =====
+const progressBar = document.getElementById("progressBar");
+
+if (progressBar) {
+  window.addEventListener(
+    "scroll",
+    () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      progressBar.style.width = `${(window.scrollY / total) * 100}%`;
+    },
+    { passive: true }
+  );
+}
+
+// ===== CTA fijo móvil: aparece durante el artículo, se oculta en el formulario =====
+const stickyCta = document.getElementById("stickyCta");
+const leadBlock = document.getElementById("unete");
+
+if (stickyCta && leadBlock) {
+  let nearForm = false;
+
+  const formObserver = new IntersectionObserver(
+    (entries) => {
+      nearForm = entries[0].isIntersecting;
+      updateCta();
+    },
+    { threshold: 0.1 }
+  );
+  formObserver.observe(leadBlock);
+
+  function updateCta() {
+    const pastHero = window.scrollY > window.innerHeight * 0.9;
+    stickyCta.classList.toggle("show", pastHero && !nearForm);
+  }
+
+  window.addEventListener("scroll", updateCta, { passive: true });
+}
+
 // ===== Captura de leads =====
 // Fase smoke test: sin backend, el envío abre un correo pre-llenado.
 // Para medir conversión real, sustituir por un endpoint de Formspree/Tally:
