@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sitio web personal de Andrés — proyectos, habilidades y contacto.">
+  <title>Andrés — Sitio personal</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌐</text></svg>">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav container">
+      <a href="#inicio" class="nav-brand">Andrés<span class="accent">.</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#sobre-mi">Sobre mí</a></li>
+        <li><a href="#proyectos">Proyectos</a></li>
+        <li><a href="#habilidades">Habilidades</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+        <li>
+          <button class="theme-toggle" id="themeToggle" aria-label="Cambiar tema">
+            <span class="theme-icon">🌙</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="inicio">
+      <div class="container hero-content">
+        <p class="hero-kicker">Hola, soy</p>
+        <h1 class="hero-title">Andrés</h1>
+        <p class="hero-subtitle">
+          Construyo herramientas y proyectos digitales.
+          Bienvenido a mi rincón en la web.
+        </p>
+        <div class="hero-actions">
+          <a href="#proyectos" class="btn btn-primary">Ver proyectos</a>
+          <a href="#contacto" class="btn btn-ghost">Contáctame</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sobre mí -->
+    <section class="section" id="sobre-mi">
+      <div class="container">
+        <h2 class="section-title">Sobre mí</h2>
+        <div class="about-grid">
+          <div class="about-text">
+            <p>
+              Soy un entusiasta de la tecnología con interés en el desarrollo de
+              software, el hardware y las herramientas que resuelven problemas
+              reales. Este sitio es mi espacio para compartir lo que hago.
+            </p>
+            <p>
+              <em>Edita este texto en <code>index.html</code> para contar tu
+              propia historia: a qué te dedicas, qué te apasiona y qué estás
+              buscando.</em>
+            </p>
+          </div>
+          <div class="about-stats">
+            <div class="stat-card">
+              <span class="stat-number" data-count="3">0</span>
+              <span class="stat-label">Proyectos publicados</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" data-count="5">0</span>
+              <span class="stat-label">Años de experiencia</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-number" data-count="100">0</span>
+              <span class="stat-label">% de curiosidad</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Proyectos -->
+    <section class="section section-alt" id="proyectos">
+      <div class="container">
+        <h2 class="section-title">Proyectos</h2>
+        <div class="cards-grid">
+          <article class="card">
+            <div class="card-icon">🖥️</div>
+            <h3>PCBench Local</h3>
+            <p>
+              Benchmark local de PC desde la terminal: CPU, RAM, disco, red,
+              GPU y auditoría de seguridad de solo lectura, con reportes
+              exportables.
+            </p>
+            <a class="card-link" href="https://github.com/amaragioglio/pcbench-local" target="_blank" rel="noopener">Ver en GitHub →</a>
+          </article>
+          <article class="card">
+            <div class="card-icon">🚀</div>
+            <h3>Proyecto dos</h3>
+            <p>
+              Describe aquí tu segundo proyecto: qué problema resuelve, con qué
+              tecnología está hecho y qué aprendiste construyéndolo.
+            </p>
+            <a class="card-link" href="#" >Próximamente →</a>
+          </article>
+          <article class="card">
+            <div class="card-icon">💡</div>
+            <h3>Proyecto tres</h3>
+            <p>
+              Otro espacio para mostrar tu trabajo. Puedes duplicar estas
+              tarjetas para agregar tantos proyectos como quieras.
+            </p>
+            <a class="card-link" href="#">Próximamente →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Habilidades -->
+    <section class="section" id="habilidades">
+      <div class="container">
+        <h2 class="section-title">Habilidades</h2>
+        <ul class="skills-list">
+          <li class="skill-tag">Python</li>
+          <li class="skill-tag">HTML / CSS</li>
+          <li class="skill-tag">JavaScript</li>
+          <li class="skill-tag">Git y GitHub</li>
+          <li class="skill-tag">Docker</li>
+          <li class="skill-tag">Linux</li>
+          <li class="skill-tag">Windows</li>
+          <li class="skill-tag">Hardware de PC</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section class="section section-alt" id="contacto">
+      <div class="container contact">
+        <h2 class="section-title">Contacto</h2>
+        <p class="contact-text">
+          ¿Tienes una idea, propuesta o pregunta? Escríbeme y te responderé lo
+          antes posible.
+        </p>
+        <div class="contact-actions">
+          <a class="btn btn-primary" href="mailto:andresmaragiogliop@gmail.com">Enviar correo</a>
+          <a class="btn btn-ghost" href="https://github.com/amaragioglio" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Andrés. Hecho con HTML, CSS y JavaScript.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
