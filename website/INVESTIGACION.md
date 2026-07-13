@@ -116,7 +116,33 @@ colombianos) que conectan emocionalmente con el café de su tierra familiar
   mailto; puede sustituirse por un formulario (Tally, Mailchimp) para medir
   conversión.
 
-## 7. Dirección de diseño definida
+## 6b. Rediseño editorial (v3) — referencia La Cabra
+
+Referencia directa del cliente: [us.lacabra.com](https://us.lacabra.com) —
+minimalismo editorial danés: fondo papel crema, tipografía serif ligera de
+gran tamaño, etiquetas pequeñas en versalitas con mucho tracking, filetes
+finos (hairlines), aire generoso, fotografía sin adornos.
+
+Decisiones aplicadas:
+
+- **Arquitectura multi-página**: portada (el Atlas) + una página por país
+  (Colombia, México, Venezuela, Guatemala, Brasil). Cada país es un
+  artículo largo tipo *NatGeo*: hero a sangre completa, standfirst en
+  cursiva, capitular de color, crossheads en versalitas, pull quote entre
+  filetes, fotos intercaladas con pie de foto, ficha de datos y navegación
+  anterior/siguiente.
+- **Narrativa mayor**: "La historia del café en América" — la semilla que
+  cruzó el Atlántico y cómo cada país la hizo suya. Historias culturales
+  redactadas como relato ("legend has it…") mientras no haya verificación
+  académica.
+- **Acento por país**: verde volcán (Guatemala), terracota (México),
+  dorado (Colombia), azul Ávila (Venezuela), verde selva (Brasil) — solo
+  en etiquetas, capitulares y hovers.
+- **Leads**: formulario de email en cada página (por ahora abre mailto;
+  cambiar por Formspree/Tally para medir conversión — el punto de anclaje
+  está comentado en `script.js`).
+
+## 7. Dirección de diseño definida (v2, superseded parcialmente por 6b)
 
 **Concepto**: una marca de café con historia de origen — mezcla de
 *marca de café + finca + revista*. El sitio cuenta el viaje del grano

@@ -31,6 +31,24 @@ finca/cafetería.
 | historia-letrero.jpg | 1501339847302-ac426a4a7cbb | Historias |
 | tazas-plantas.jpg | 1509042239860-f550ce710b93 | Visítanos |
 
+### Fotos del Atlas (v3 — editorial)
+
+Las variantes `*-hero.jpg` (1920w) y `*-sm.jpg` (móvil) provienen de los
+mismos IDs. Nuevas incorporaciones, todas gratuitas (no Unsplash+):
+
+| Archivo | ID Unsplash | Qué es |
+| --- | --- | --- |
+| venezuela-hero.jpg | 1602040584794-7e3bcd476c79 | Salto Ángel, Canaima (Alfonso Sanzone) — verificada |
+| brasil-hero.jpg | 1633437805600-2c58bf56663c | Valle cafetero entre montañas |
+| brasil-cafetal.jpg | 1652020079010-038498f4b852 | Cafetal en São Sebastião da Grama, SP, Brasil (Projeto Café Gato-Mourisco) |
+| cerezas-rojas.jpg | 1586095516671-d085ff58cdd4 | Cerezas de café maduras en rama |
+| cerezas-rama.jpg | 1515694590185-73647ba02c10 | Cerezas verdes/rojas en rama |
+| tostadora-vintage.jpg | 1511537190424-bbbab87ac5eb | Tambor de tostado antiguo |
+| guatemala-hero.jpg / mexico-hero.jpg / colombia-hero.jpg | (mismos IDs de origen-guatemala/mexico/colombia) | Héroes 1920w |
+
+Nota: se descartó una foto "Angel Falls" premium de Unsplash+ (Getty) por
+licencia, y una supuesta foto del salto que en realidad era Yosemite.
+
 Para videos reales (pendiente): usar [Pexels Videos](https://www.pexels.com/videos/)
 (licencia Pexels, uso comercial gratuito) o Pixabay con el filtro de
 contenido IA desactivado.

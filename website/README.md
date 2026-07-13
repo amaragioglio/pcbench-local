@@ -15,12 +15,20 @@ son reales (Unsplash, sin IA) y provisionales — ver `assets/img/CREDITOS.md`.
 
 ```text
 website/
-  index.html        → contenido por capítulos (hero, origen, proceso, café, historias, visita)
-  styles.css        → paleta espresso/crema, tipografía editorial, responsive
-  script.js         → header al scroll, menú móvil, animaciones de aparición
+  index.html        → portada editorial: masthead, intro, el Atlas (índice de países), manifiesto, lista
+  colombia.html     → artículo Nº 01 — La tierra del tinto
+  mexico.html       → artículo Nº 02 — De contrabando y revolución
+  venezuela.html    → artículo Nº 03 — El país del marrón y el guayoyo
+  guatemala.html    → artículo Nº 04 — Tierra de volcanes
+  brasil.html       → artículo Nº 05 — O gigante do cafezinho
+  styles.css        → sistema editorial minimalista (ref. La Cabra): papel crema, serif ligera, hairlines
+  script.js         → topbar, menú móvil, reveal, formulario de leads (mailto → cambiar a Formspree/Tally)
   INVESTIGACION.md  → investigación de referencias y dirección de diseño
   assets/img/       → fotografías reales + CREDITOS.md
 ```
+
+Las páginas de país se generan a mano sobre una plantilla común; si cambias
+la estructura de una, replica el cambio en las cinco.
 
 ## Ver en local
 

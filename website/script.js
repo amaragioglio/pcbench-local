@@ -1,54 +1,74 @@
-// ===== Header: fondo al hacer scroll =====
-const header = document.getElementById("siteHeader");
+// ===== Barra superior: fondo al hacer scroll =====
+const topbar = document.getElementById("topbar");
 
-function updateHeader() {
-  header.classList.toggle("scrolled", window.scrollY > 40);
+function updateTopbar() {
+  topbar.classList.toggle("scrolled", window.scrollY > 40);
 }
 
-updateHeader();
-window.addEventListener("scroll", updateHeader, { passive: true });
+updateTopbar();
+window.addEventListener("scroll", updateTopbar, { passive: true });
 
 // ===== Menú móvil =====
 const navToggle = document.getElementById("navToggle");
-const navLinks = document.getElementById("navLinks");
+const topnav = document.getElementById("topnav");
 
 navToggle.addEventListener("click", () => {
-  const open = navLinks.classList.toggle("open");
+  const open = topnav.classList.toggle("open");
   navToggle.setAttribute("aria-expanded", String(open));
-  if (open) header.classList.add("scrolled");
-  else updateHeader();
+  if (open) topbar.classList.add("scrolled");
+  else updateTopbar();
 });
 
-navLinks.querySelectorAll("a").forEach((link) => {
+topnav.querySelectorAll("a").forEach((link) => {
   link.addEventListener("click", () => {
-    navLinks.classList.remove("open");
+    topnav.classList.remove("open");
     navToggle.setAttribute("aria-expanded", "false");
-    updateHeader();
+    updateTopbar();
   });
 });
 
 // ===== Aparición suave al hacer scroll =====
 const revealTargets = document.querySelectorAll(
-  ".section-title, .kicker, .editorial-text, .editorial-media, .origin, .card, .story, .visit-grid > *, .section-intro"
+  ".reveal, .atlas-row, .interlude, .pullquote, .facts, .feature-head .container, .article .narrow"
 );
-revealTargets.forEach((el) => el.classList.add("reveal"));
 
 const revealObserver = new IntersectionObserver(
   (entries) => {
-    entries.forEach((entry, i) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
         entry.target.classList.add("visible");
         revealObserver.unobserve(entry.target);
       }
     });
   },
-  { threshold: 0.12 }
+  { threshold: 0.08 }
 );
 
-revealTargets.forEach((el, i) => {
-  el.style.transitionDelay = `${(i % 4) * 80}ms`;
+revealTargets.forEach((el) => {
+  el.classList.add("reveal");
   revealObserver.observe(el);
 });
 
-// ===== Año del footer =====
+// ===== Captura de leads =====
+// Fase smoke test: sin backend, el envío abre un correo pre-llenado.
+// Para medir conversión real, sustituir por un endpoint de Formspree/Tally:
+//   fetch('https://formspree.io/f/TU_ID', { method: 'POST', body: new FormData(form) })
+const leadForm = document.getElementById("leadForm");
+
+if (leadForm) {
+  leadForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const email = leadForm.querySelector("input[name=email]").value;
+    const subject = encodeURIComponent("Join la lista — Orígenes Coffee");
+    const body = encodeURIComponent(
+      `I want in!\n\nMy email: ${email}\nMy origin (country): `
+    );
+    window.location.href = `mailto:andresmaragiogliop@gmail.com?subject=${subject}&body=${body}`;
+    const button = leadForm.querySelector("button");
+    button.textContent = "¡Gracias!";
+    setTimeout(() => (button.textContent = "I want in"), 4000);
+  });
+}
+
+// ===== Año del pie =====
 document.getElementById("year").textContent = new Date().getFullYear();
