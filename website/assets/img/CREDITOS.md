@@ -1,0 +1,31 @@
+# Créditos de fotografía
+
+Todas las fotos son **reales** (sin IA), descargadas de Unsplash bajo la
+[Unsplash License](https://unsplash.com/license): uso comercial gratuito,
+sin atribución obligatoria. Se listan igualmente los IDs de origen para
+poder rastrear cada foto (`https://unsplash.com/photos/<id>` no aplica
+directamente; el ID corresponde a la URL de `images.unsplash.com`).
+
+Son **provisionales**: se reemplazarán por fotografía propia de la
+finca/cafetería.
+
+| Archivo | ID Unsplash (images.unsplash.com/photo-…) | Uso |
+| --- | --- | --- |
+| hero-montanas.jpg | 1470071459604-3b5ec3a7fe05 | Hero |
+| origen-costal.jpg | 1524350876685-274059332603 | Origen |
+| proceso-granos.jpg | 1447933601403-0c6688de566e | Proceso 01 |
+| proceso-tostado.jpg | 1607681034540-2c46cc71896d | Proceso 02 |
+| proceso-molienda.jpg | 1509785307050-d4066910ec1e | Proceso 03 |
+| proceso-barismo.jpg | 1442512595331-e89e73853f31 | Proceso 04 |
+| quote-taza-oscura.jpg | 1610632380989-680fe40816c6 | Cita |
+| cafe-producto.jpg | 1611854779393-1b2da9d400fe | El café |
+| cafe-granos-taza.jpg | 1625021659159-f63f546d74a7 | El café |
+| cafe-taza-vapor.jpg | 1497515114629-f71d768fd07c | El café |
+| historia-amigos.jpg | 1495474472287-4d71bcdd2085 | Historias |
+| historia-barra.jpg | 1453614512568-c4024d13c247 | Historias |
+| historia-letrero.jpg | 1501339847302-ac426a4a7cbb | Historias |
+| tazas-plantas.jpg | 1509042239860-f550ce710b93 | Visítanos |
+
+Para videos reales (pendiente): usar [Pexels Videos](https://www.pexels.com/videos/)
+(licencia Pexels, uso comercial gratuito) o Pixabay con el filtro de
+contenido IA desactivado.

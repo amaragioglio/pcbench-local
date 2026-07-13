@@ -1,16 +1,21 @@
-# Sitio web
+# Café Origen — Sitio web
 
-Sitio web estático nuevo, independiente del CLI de PCBench. No requiere
-dependencias ni proceso de build: solo HTML, CSS y JavaScript.
+Sitio web de una marca de café con historia de origen (finca + cafetería +
+revista). Estático, sin dependencias ni build: solo HTML, CSS y JavaScript.
+La dirección de diseño está documentada en [INVESTIGACION.md](INVESTIGACION.md).
+
+El nombre "Café Origen" es provisional. Las fotos son reales (Unsplash,
+sin IA) y también provisionales — ver `assets/img/CREDITOS.md`.
 
 ## Estructura
 
 ```text
 website/
-  index.html   → contenido de la página (textos, secciones, enlaces)
-  styles.css   → estilos, temas claro/oscuro y responsive
-  script.js    → tema, menú móvil, animaciones y contadores
-  assets/      → imágenes y otros recursos
+  index.html        → contenido por capítulos (hero, origen, proceso, café, historias, visita)
+  styles.css        → paleta espresso/crema, tipografía editorial, responsive
+  script.js         → header al scroll, menú móvil, animaciones de aparición
+  INVESTIGACION.md  → investigación de referencias y dirección de diseño
+  assets/img/       → fotografías reales + CREDITOS.md
 ```
 
 ## Ver en local
@@ -25,13 +30,15 @@ Luego visita `http://localhost:8000`.
 
 ## Personalizar
 
-- **Textos y secciones**: edita `index.html`. Las secciones actuales son
-  Inicio, Sobre mí, Proyectos, Habilidades y Contacto.
-- **Proyectos**: duplica cualquier `<article class="card">` dentro de la
-  sección `#proyectos`.
-- **Colores**: cambia las variables CSS al inicio de `styles.css`
-  (`--accent`, `--bg`, etc.). El tema oscuro se define en `[data-theme="dark"]`.
-- **Contadores**: los números de "Sobre mí" usan `data-count="N"`.
+- **Textos**: edita `index.html`. Los capítulos son Origen, Proceso,
+  El café, Historias y Visítanos.
+- **Nombre de la marca**: busca "Café Origen" en `index.html` y reemplázalo.
+- **Fotos**: sustituye los archivos de `assets/img/` por fotografía propia
+  manteniendo los nombres, o actualiza las rutas en `index.html`.
+- **Colores**: variables CSS al inicio de `styles.css`
+  (`--espresso`, `--crema`, `--tostado`, `--hoja`).
+- **Video**: reservado para el hero o el proceso; usar Pexels Videos
+  (real, sin IA) con póster de imagen y sin autoplay en móvil.
 
 ## Publicar en GitHub Pages
 
