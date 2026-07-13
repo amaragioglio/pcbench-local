@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Orígenes Coffee — coffee with memory. The flavors and stories of Guatemala, México and Colombia, for those who grew up between two worlds.">
   <title>Orígenes Coffee — Coffee with memory</title>
+  <meta name="theme-color" content="#2b1d16">
+  <link rel="preload" as="image" href="assets/img/hero-montanas.jpg" imagesrcset="assets/img/hero-montanas-sm.jpg 960w, assets/img/hero-montanas.jpg 1920w" imagesizes="100vw">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -31,7 +33,10 @@
   <main>
     <!-- Hero -->
     <section class="hero" id="inicio">
-      <img class="hero-bg" src="assets/img/hero-montanas.jpg" alt="Green mountains wrapped in morning mist">
+      <img class="hero-bg" src="assets/img/hero-montanas.jpg"
+           srcset="assets/img/hero-montanas-sm.jpg 960w, assets/img/hero-montanas.jpg 1920w"
+           sizes="100vw" fetchpriority="high"
+           alt="Green mountains wrapped in morning mist">
       <div class="hero-overlay"></div>
       <div class="container hero-content">
         <p class="kicker kicker-light">Coffee with memory · Café con memoria</p>
@@ -70,7 +75,7 @@
             </p>
           </div>
           <figure class="editorial-media">
-            <img src="assets/img/origen-costal.jpg" alt="Burlap sack full of roasted coffee beans" loading="lazy">
+            <img src="assets/img/origen-costal.jpg" srcset="assets/img/origen-costal-sm.jpg 800w, assets/img/origen-costal.jpg 1200w" sizes="(max-width: 760px) 92vw, 45vw" alt="Burlap sack full of roasted coffee beans" loading="lazy">
             <figcaption>El costal — where every story begins.</figcaption>
           </figure>
         </div>
@@ -88,7 +93,7 @@
         </p>
         <div class="origins">
           <article class="origin">
-            <img src="assets/img/origen-guatemala.jpg" alt="Lake Atitlán with its volcanoes, Guatemala" loading="lazy">
+            <img src="assets/img/origen-guatemala.jpg" srcset="assets/img/origen-guatemala-sm.jpg 800w, assets/img/origen-guatemala.jpg 1000w" sizes="(max-width: 760px) 92vw, 33vw" alt="Lake Atitlán with its volcanoes, Guatemala" loading="lazy">
             <div class="origin-body">
               <span class="origin-flag">Guatemala</span>
               <h3>Tierra de volcanes</h3>
@@ -102,7 +107,7 @@
             </div>
           </article>
           <article class="origin">
-            <img src="assets/img/origen-mexico.jpg" alt="Colorful hillside city of Guanajuato, México" loading="lazy">
+            <img src="assets/img/origen-mexico.jpg" srcset="assets/img/origen-mexico-sm.jpg 800w, assets/img/origen-mexico.jpg 1000w" sizes="(max-width: 760px) 92vw, 33vw" alt="Colorful hillside city of Guanajuato, México" loading="lazy">
             <div class="origin-body">
               <span class="origin-flag">México</span>
               <h3>De contrabando y revolución</h3>
@@ -116,7 +121,7 @@
             </div>
           </article>
           <article class="origin">
-            <img src="assets/img/origen-colombia.jpg" alt="Colorful colonial street in Cartagena, Colombia" loading="lazy">
+            <img src="assets/img/origen-colombia.jpg" srcset="assets/img/origen-colombia-sm.jpg 800w, assets/img/origen-colombia.jpg 1000w" sizes="(max-width: 760px) 92vw, 33vw" alt="Colorful colonial street in Cartagena, Colombia" loading="lazy">
             <div class="origin-body">
               <span class="origin-flag">Colombia</span>
               <h3>La tierra del tinto</h3>
@@ -134,7 +139,7 @@
 
     <!-- Cita -->
     <section class="quote">
-      <img class="quote-bg" src="assets/img/quote-taza-oscura.jpg" alt="" aria-hidden="true">
+      <img class="quote-bg" src="assets/img/quote-taza-oscura.jpg" srcset="assets/img/quote-taza-oscura-sm.jpg 800w, assets/img/quote-taza-oscura.jpg 1400w" sizes="100vw" alt="" aria-hidden="true">
       <div class="quote-overlay"></div>
       <blockquote class="container">
         <p>“Every cup remembers where it came from.”</p>
@@ -153,7 +158,7 @@
         </p>
         <div class="stories">
           <article class="story">
-            <img src="assets/img/historia-papel-picado.jpg" alt="Colorful papel picado banners against the sky" loading="lazy">
+            <img src="assets/img/historia-papel-picado.jpg" srcset="assets/img/historia-papel-picado-sm.jpg 800w, assets/img/historia-papel-picado.jpg 900w" sizes="(max-width: 760px) 92vw, 25vw" alt="Colorful papel picado banners against the sky" loading="lazy">
             <div class="story-body">
               <span class="story-cat">México · Historia</span>
               <h3>Café de olla: the Revolution in a clay pot</h3>
@@ -161,7 +166,7 @@
             </div>
           </article>
           <article class="story">
-            <img src="assets/img/proceso-granos.jpg" alt="Close-up of roasted coffee beans" loading="lazy">
+            <img src="assets/img/proceso-granos.jpg" srcset="assets/img/proceso-granos-sm.jpg 800w, assets/img/proceso-granos.jpg 900w" sizes="(max-width: 760px) 92vw, 25vw" alt="Close-up of roasted coffee beans" loading="lazy">
             <div class="story-body">
               <span class="story-cat">Chiapas · Leyenda</span>
               <h3>Smuggled seeds</h3>
@@ -169,7 +174,7 @@
             </div>
           </article>
           <article class="story">
-            <img src="assets/img/cafe-taza-vapor.jpg" alt="Steaming cup of black coffee surrounded by beans" loading="lazy">
+            <img src="assets/img/cafe-taza-vapor.jpg" srcset="assets/img/cafe-taza-vapor-sm.jpg 800w, assets/img/cafe-taza-vapor.jpg 900w" sizes="(max-width: 760px) 92vw, 25vw" alt="Steaming cup of black coffee surrounded by beans" loading="lazy">
             <div class="story-body">
               <span class="story-cat">Colombia · Ritual</span>
               <h3>El tinto de todos los días</h3>
@@ -177,7 +182,7 @@
             </div>
           </article>
           <article class="story">
-            <img src="assets/img/historia-amigos.jpg" alt="Three hands toasting with cups of coffee" loading="lazy">
+            <img src="assets/img/historia-amigos.jpg" srcset="assets/img/historia-amigos-sm.jpg 800w, assets/img/historia-amigos.jpg 900w" sizes="(max-width: 760px) 92vw, 25vw" alt="Three hands toasting with cups of coffee" loading="lazy">
             <div class="story-body">
               <span class="story-cat">Nuestra gente</span>
               <h3>Abuela's kitchen</h3>
@@ -195,7 +200,7 @@
         <h2 class="section-title">The coffee · El café</h2>
         <div class="cards-grid">
           <article class="card">
-            <img src="assets/img/cafe-producto.jpg" alt="Coffee bag, grinder and mug on a wooden table" loading="lazy">
+            <img src="assets/img/cafe-producto.jpg" srcset="assets/img/cafe-producto-sm.jpg 800w, assets/img/cafe-producto.jpg 900w" sizes="(max-width: 760px) 92vw, 33vw" alt="Coffee bag, grinder and mug on a wooden table" loading="lazy">
             <div class="card-body">
               <h3>Orígenes Guatemala</h3>
               <p>Volcanic highlands in a cup: sweet, round, made for slow mornings.</p>
@@ -203,7 +208,7 @@
             </div>
           </article>
           <article class="card">
-            <img src="assets/img/proceso-molienda.jpg" alt="Ground coffee and espresso on a wooden table" loading="lazy">
+            <img src="assets/img/proceso-molienda.jpg" srcset="assets/img/proceso-molienda-sm.jpg 800w, assets/img/proceso-molienda.jpg 900w" sizes="(max-width: 760px) 92vw, 33vw" alt="Ground coffee and espresso on a wooden table" loading="lazy">
             <div class="card-body">
               <h3>Orígenes México</h3>
               <p>Inspired by café de olla — warm spice notes and a story of revolution.</p>
@@ -211,7 +216,7 @@
             </div>
           </article>
           <article class="card">
-            <img src="assets/img/cafe-granos-taza.jpg" alt="Tray of coffee beans with a white cup" loading="lazy">
+            <img src="assets/img/cafe-granos-taza.jpg" srcset="assets/img/cafe-granos-taza-sm.jpg 800w, assets/img/cafe-granos-taza.jpg 900w" sizes="(max-width: 760px) 92vw, 33vw" alt="Tray of coffee beans with a white cup" loading="lazy">
             <div class="card-body">
               <h3>Orígenes Colombia</h3>
               <p>El tinto, elevated: balanced, bright, and endlessly drinkable.</p>
@@ -239,7 +244,7 @@
           <a class="btn btn-light" href="mailto:andresmaragiogliop@gmail.com?subject=Join%20la%20lista%20%E2%80%94%20Or%C3%ADgenes%20Coffee&body=I%20want%20in!%20My%20origin%20is%3A%20">I want in</a>
         </div>
         <figure class="visit-media">
-          <img src="assets/img/tazas-plantas.jpg" alt="Cups of coffee with latte art among plants" loading="lazy">
+          <img src="assets/img/tazas-plantas.jpg" srcset="assets/img/tazas-plantas-sm.jpg 800w, assets/img/tazas-plantas.jpg 900w" sizes="(max-width: 760px) 92vw, 45vw" alt="Cups of coffee with latte art among plants" loading="lazy">
         </figure>
       </div>
     </section>
