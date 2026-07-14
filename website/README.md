@@ -14,7 +14,7 @@ son reales (Unsplash, sin IA) y provisionales — ver `assets/img/CREDITOS.md`.
 ## Estructura
 
 ```text
-website/
+origenes-coffee/
   index.html        → portada editorial: masthead, intro, el Atlas (índice de países), manifiesto, lista
   colombia.html     → artículo Nº 01 — La tierra del tinto
   mexico.html       → artículo Nº 02 — De contrabando y revolución
@@ -35,7 +35,7 @@ la estructura de una, replica el cambio en las cinco.
 Abre `index.html` directamente en el navegador, o sirve la carpeta:
 
 ```bash
-python3 -m http.server 8000 --directory website
+python3 -m http.server 8000
 ```
 
 Luego visita `http://localhost:8000`.
@@ -78,9 +78,9 @@ para `assets/` y cabeceras de seguridad básicas.
 **Opción A — desde el dashboard (recomendada):**
 
 1. Entra a <https://vercel.com/new> e importa el repo
-   `amaragioglio/pcbench-local` (conecta tu GitHub si es la primera vez).
-2. En la configuración del proyecto: **Root Directory → `website`**,
-   Framework Preset → *Other*, sin build command ni output directory.
+   `amaragioglio/origenes-coffee` (conecta tu GitHub si es la primera vez).
+2. En la configuración del proyecto: Framework Preset → *Other*, sin
+   build command ni output directory (el sitio vive en la raíz del repo).
 3. En *Settings → Git*, elige la rama a desplegar (o haz merge de la rama
    de trabajo a `main` primero).
 4. Deploy. Tendrás `https://<proyecto>.vercel.app` en segundos; cada push
@@ -90,7 +90,6 @@ para `assets/` y cabeceras de seguridad básicas.
 
 ```bash
 npm i -g vercel
-cd website
 vercel          # primera vez: login + configurar
 vercel --prod   # producción
 ```
@@ -102,6 +101,5 @@ dominio final en las metas `og:image` si usas dominio propio.
 ## Publicar en GitHub Pages (alternativa)
 
 1. En GitHub: *Settings → Pages*.
-2. Source: *Deploy from a branch*, rama `main`, carpeta `/website`
-   (si GitHub no ofrece esa carpeta, mueve el contenido a `/docs` o a la raíz).
+2. Source: *Deploy from a branch*, rama `main`, carpeta `/ (root)`.
 3. Guarda y espera el enlace `https://<usuario>.github.io/<repo>/`.

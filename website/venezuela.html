@@ -10,16 +10,17 @@
   <meta property="og:site_name" content="Orígenes Coffee">
   <meta property="og:title" content="Venezuela — El país del marrón y el guayoyo — Orígenes Coffee">
   <meta property="og:description" content="The history of coffee in Venezuela: the Orinoco missions, the Andean boom that rivaled Brazil, and the language of negrito, marrón and guayoyo.">
-  <meta property="og:image" content="/assets/img/venezuela-hero.jpg">
+  <meta property="og:image" content="https://origenes-coffee.vercel.app/assets/img/venezuela-hero.jpg">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://origenes-coffee.vercel.app/venezuela">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Venezuela — El país del marrón y el guayoyo", "description": "The history of coffee in Venezuela: the Orinoco missions, the Andean boom that rivaled Brazil, and the language of negrito, marrón and guayoyo.", "image": "https://origenes-coffee.vercel.app/assets/img/venezuela-hero.jpg", "inLanguage": "en", "publisher": {"@type": "Organization", "name": "Orígenes Coffee"}, "mainEntityOfPage": "https://origenes-coffee.vercel.app/venezuela"}</script>
   <link rel="preload" as="image" href="assets/img/venezuela-hero.jpg" imagesrcset="assets/img/venezuela-hero-sm.jpg 960w, assets/img/venezuela-hero.jpg 1920w" imagesizes="100vw">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="font" type="font/woff2" href="assets/fonts/fraunces-normal-300.woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☕</text></svg>">
 </head>
 <body class="tema-venezuela">
+  <a class="skip-link" href="#main">Skip to content</a>
   <header class="topbar over-image" id="topbar">
     <div class="container topbar-inner">
       <a href="index.html" class="wordmark">Orígenes <em>Coffee</em></a>
@@ -35,7 +36,7 @@
 
   <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
 
-  <main>
+  <main id="main">
     <div class="feature-hero" id="featureHero">
       <img src="assets/img/venezuela-hero.jpg"
            srcset="assets/img/venezuela-hero-sm.jpg 960w, assets/img/venezuela-hero.jpg 1920w"
@@ -87,7 +88,7 @@
       </aside>
 
       <figure class="interlude">
-        <img src="assets/img/tostadora-vintage.jpg" srcset="assets/img/tostadora-vintage-sm.jpg 800w, assets/img/tostadora-vintage.jpg 1200w" sizes="(max-width: 780px) 100vw, 1160px" alt="Coffee beans pouring into an old roasting drum" loading="lazy">
+        <img src="assets/img/tostadora-vintage.avif" srcset="assets/img/tostadora-vintage-sm.avif 800w, assets/img/tostadora-vintage.avif 1200w" sizes="(max-width: 780px) 100vw, 1160px" alt="Coffee beans pouring into an old roasting drum" loading="lazy">
         <figcaption>The roast — in Venezuelan homes, beans were often roasted and ground the same morning.</figcaption>
       </figure>
 
@@ -110,7 +111,7 @@
       </div>
 
       <figure class="interlude tall">
-        <img src="assets/img/historia-amigos.jpg" srcset="assets/img/historia-amigos-sm.jpg 800w, assets/img/historia-amigos.jpg 1200w" sizes="(max-width: 780px) 100vw, 680px" alt="Three hands toasting with cups of coffee" loading="lazy">
+        <img src="assets/img/historia-amigos.avif" srcset="assets/img/historia-amigos-sm.avif 800w, assets/img/historia-amigos.avif 1200w" sizes="(max-width: 780px) 100vw, 680px" alt="Three hands toasting with cups of coffee" loading="lazy">
         <figcaption>El cafecito is never drunk alone if it can be helped.</figcaption>
       </figure>
     </article>
@@ -133,8 +134,9 @@
         <span class="label">Join la lista</span>
         <h2>Taste Venezuela the way your family remembers it.</h2>
         <p>
-          We're launching soon. Leave your email and get each country's
-          story — and its coffee — before anyone else.
+          We're launching soon. Leave your email to reserve the first
+          roast of <em>Orígenes Venezuela</em> — and get every story before
+          anyone else.
         </p>
         <form class="lead-form" id="leadForm" data-origen="venezuela">
           <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
