@@ -6,8 +6,11 @@ from typing import Any
 
 import psutil
 
+from pcbench.benchmarks.stats import summarize
+
 
 BYTES_IN_MIB = 1024**2
+BANDWIDTH_TRIALS = 3
 PAGE_SIZE = 4096
 DEFAULT_MAX_TEST_MIB = 1024
 MIN_AVAILABLE_AFTER_TEST_MIB = 1024
@@ -95,30 +98,50 @@ def _touch_pages(buffer: bytearray) -> None:
 
 
 def _run_bandwidth_test(size_mib: int) -> dict[str, Any]:
+    """Approximate memory bandwidth using C-speed operations, median of TRIALS.
+
+    Write: fill the buffer through a memoryview in 64 MiB copies (memcpy).
+    Read: scan the whole buffer for a byte that is not there (memchr).
+    The previous version summed bytes in a Python loop, which measured the
+    interpreter (about 200 MiB/s) instead of the memory (usually 10+ GiB/s).
+    """
     size_bytes = size_mib * BYTES_IN_MIB
     buffer = bytearray(size_bytes)
-    chunk = bytes([0xA5]) * BYTES_IN_MIB
+    _touch_pages(buffer)  # fault pages in before timing
+    chunk = bytes([0xA5]) * (64 * BYTES_IN_MIB)
+    write_rates: list[float] = []
+    read_rates: list[float] = []
+    found = -1
 
-    write_started = time.perf_counter()
-    for offset in range(0, size_bytes, len(chunk)):
-        end = min(offset + len(chunk), size_bytes)
-        buffer[offset:end] = chunk[: end - offset]
-    write_elapsed = time.perf_counter() - write_started
+    for _ in range(BANDWIDTH_TRIALS):
+        view = memoryview(buffer)
+        started = time.perf_counter()
+        for offset in range(0, size_bytes, len(chunk)):
+            end = min(offset + len(chunk), size_bytes)
+            view[offset:end] = chunk[: end - offset]
+        write_rates.append(_mib_per_second(size_mib, time.perf_counter() - started))
 
-    read_started = time.perf_counter()
-    checksum = sum(buffer)
-    read_elapsed = time.perf_counter() - read_started
+        started = time.perf_counter()
+        found = buffer.find(b"\x01")
+        read_rates.append(_mib_per_second(size_mib, time.perf_counter() - started))
 
+    view.release()
     del buffer
     gc.collect()
 
+    write = summarize(write_rates)
+    read = summarize(read_rates)
     return {
+        "method_version": 2,
         "test_size_mib": size_mib,
-        "write_seconds": round(write_elapsed, 3),
-        "read_seconds": round(read_elapsed, 3),
-        "write_mib_per_second": _mib_per_second(size_mib, write_elapsed),
-        "read_mib_per_second": _mib_per_second(size_mib, read_elapsed),
-        "checksum": checksum,
+        "trials": BANDWIDTH_TRIALS,
+        "write_mib_per_second": write["median"],
+        "read_mib_per_second": read["median"],
+        "write": write,
+        "read": read,
+        "confidence": "low" if "low" in (write["confidence"], read["confidence"]) else
+                      ("medium" if "medium" in (write["confidence"], read["confidence"]) else "high"),
+        "checksum": found,
     }
 
 

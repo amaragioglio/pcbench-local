@@ -96,8 +96,8 @@ def print_report_summary(
         bandwidth = memory_benchmark["bandwidth"]
         allocation = memory_benchmark["allocation"]
         _metric(console, "Allocation", allocation["status"], "ok" if allocation["status"] == "passed" else "warn")
-        _bar_metric(console, "Read", bandwidth["read_mib_per_second"], "MiB/s", 1000)
-        _bar_metric(console, "Write", bandwidth["write_mib_per_second"], "MiB/s", 5000)
+        _bar_metric(console, "Read", bandwidth["read_mib_per_second"], "MiB/s", 15000)
+        _bar_metric(console, "Write", bandwidth["write_mib_per_second"], "MiB/s", 10000)
         _kv(console, "Largest OK block", f"{allocation['largest_successful_mib']} MiB")
 
     if cpu_benchmark:
