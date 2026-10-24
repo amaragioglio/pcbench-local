@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pcbench-local"
-version = "0.3.0"
+version = "0.4.0"
 description = "Terminal-first local PC benchmark and security audit tool."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -16,7 +16,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-windows = ["WMI==1.5.1"]
+windows = ["WMI==1.5.1", "pywebview==6.2.1"]
+app = ["pywebview==6.2.1"]
 
 [project.scripts]
 pcbench = "pcbench.cli:main"
@@ -27,4 +28,9 @@ packages = [
   "pcbench.benchmarks",
   "pcbench.reports",
   "pcbench.security",
+  "pcbench.gui",
 ]
+
+[tool.setuptools.package-data]
+"pcbench.gui" = ["web/*"]
+"pcbench.security" = ["*.ps1"]

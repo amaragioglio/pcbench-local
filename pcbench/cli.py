@@ -27,9 +27,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "command",
         nargs="?",
-        choices=("run", "compare", "wizard", "history", "schedule"),
+        choices=("run", "compare", "wizard", "history", "schedule", "app"),
         default="run",
-        help="Command to run. Default: run.",
+        help="Command to run. Default: run. 'app' opens the desktop window.",
     )
     parser.add_argument(
         "--quick",
@@ -171,6 +171,11 @@ def build_parser() -> argparse.ArgumentParser:
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+    if args.command == "app":
+        from pcbench.gui.app import main as run_app
+
+        run_app()
+        return
     _apply_profile(args)
     console = build_console()
 

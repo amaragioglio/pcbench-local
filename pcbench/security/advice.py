@@ -203,6 +203,38 @@ ADVICE: dict[str, dict[str, dict[str, Any]]] = {
                "why": "No es un problema de tu PC. Ejecutar como administrador permite revisar todo.",
                "fix": ["Cierra PCBench, haz clic derecho y elige Ejecutar como administrador."]},
     },
+    "ports_none": {
+        "en": {"title": "No common services open to the network", "why": "Nothing typical is waiting for connections from other devices.", "fix": []},
+        "es": {"title": "Ningún servicio común abierto a la red", "why": "No hay servicios típicos esperando conexiones de otros equipos.", "fix": []},
+    },
+    "linux_sudo": {
+        "en": {"title": "Some users can act as administrator", "why": "Normal on a personal computer. Make sure you recognize every account listed in the report.", "fix": []},
+        "es": {"title": "Algunos usuarios pueden actuar como administrador", "why": "Es normal en una PC personal. Revisa que reconozcas todas las cuentas del reporte.", "fix": []},
+    },
+    "linux_sudo_none": {
+        "en": {"title": "No extra administrator accounts", "why": "Only the system can make administrative changes.", "fix": []},
+        "es": {"title": "Sin cuentas de administrador extra", "why": "Solo el sistema puede hacer cambios de administrador.", "fix": []},
+    },
+    "linux_services": {
+        "en": {"title": "Background services listed", "why": "For a technician: the report includes the active services.", "fix": []},
+        "es": {"title": "Servicios en segundo plano listados", "why": "Para un técnico: el reporte incluye los servicios activos.", "fix": []},
+    },
+    "linux_services_unknown": {
+        "en": {"title": "Background services could not be read", "why": "This system does not expose them; not a problem by itself.", "fix": []},
+        "es": {"title": "No se pudieron leer los servicios en segundo plano", "why": "Este sistema no los expone; no es un problema en sí.", "fix": []},
+    },
+    "linux_firewall_unknown": {
+        "en": {"title": "Could not tell whether a firewall is active", "why": "No known firewall tool answered.", "fix": []},
+        "es": {"title": "No se pudo saber si hay firewall activo", "why": "Ninguna herramienta de firewall conocida respondió.", "fix": []},
+    },
+    "container": {
+        "en": {"title": "Running inside a container or WSL", "why": "Hardware and security results describe the container, not the real PC.", "fix": []},
+        "es": {"title": "Se está ejecutando dentro de un contenedor o WSL", "why": "Los resultados describen el contenedor, no la PC real.", "fix": []},
+    },
+    "many_admins": {
+        "en": {"title": "Several administrator accounts", "why": "Each administrator account is another way in. Remove the ones nobody uses.", "fix": []},
+        "es": {"title": "Varias cuentas de administrador", "why": "Cada cuenta de administrador es otra puerta de entrada. Quita las que nadie usa.", "fix": []},
+    },
 }
 
 

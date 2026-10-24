@@ -27,8 +27,11 @@ jobs:
         run: |
           $version = "${{ github.ref_name }}".TrimStart("v")
           New-Item -ItemType Directory -Force -Path release | Out-Null
-          Copy-Item dist\pcbench.exe release\pcbench-$version-windows.exe
+          Copy-Item dist\PCBench.exe release\PCBench-$version-windows.exe
+          Copy-Item dist\pcbench-cli.exe release\pcbench-cli-$version-windows.exe
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
-          files: release/pcbench-*-windows.exe
+          files: |
+            release/PCBench-*-windows.exe
+            release/pcbench-cli-*-windows.exe

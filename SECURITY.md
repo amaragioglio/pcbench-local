@@ -8,7 +8,7 @@ PCBench Local is currently pre-1.0. Security fixes are applied to the `main` bra
 
 This project is a local diagnostic and benchmark tool. It should not collect secrets, upload reports automatically, or modify security settings without explicit user action.
 
-The security audit module is read-only by design. It checks local configuration such as firewall state, Defender status, listening ports, startup entries, and local administrators.
+The security audit module is read-only by design. On Windows it runs one PowerShell script (`pcbench/security/windows_posture.ps1`, invoked by absolute path from System32) that reads configuration: Security Center antivirus and firewall products, Defender status, Windows Update history, UAC, Guest account, automatic sign-in (only whether a stored password exists, never its value), Remote Desktop, SMBv1, Secure Boot, BitLocker and SmartScreen. It also lists listening ports, startup entries and local administrators. It never changes a setting.
 
 When the tool is not running with administrator/root privileges, audit output is marked with `partial: true` and a privileges finding. The tool still runs read-only checks, but process, port, service, or security-provider details may be incomplete.
 

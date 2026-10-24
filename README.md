@@ -1,52 +1,74 @@
 # PCBench Local
 
-**Benchmark, hardware check and read-only security audit for your PC, from the terminal.**
-Find out if your machine is healthy, compare it with itself over time, and share a report
-without leaking your IP, hostname or username.
+**Is my PC safe? Is it performing well? One button, plain answers, step-by-step fixes.**
+A free, read-only check-up for Windows PCs, in Spanish and English. It reviews your security settings
+first and your hardware second, and tells you exactly what to do about each problem.
 
 No account, no telemetry, no uploads. Everything runs and stays on your computer.
+**It is not an antivirus**: it checks how your PC is configured, not whether it is infected.
 
-![HTML report](docs/img/html-report.png)
+![PCBench window, Spanish, security tab (sample data)](docs/img/app-security-es.png)
+<sub>Screenshot with sample data.</sub>
+
+## How it works
+
+1. Open **PCBench** and press **Check my PC** (*Revisar mi PC*). It takes about two minutes.
+2. Every check becomes a line with three lights: **red** fix now, **amber** should fix, **green** fine.
+3. Open a red or amber line to read why it matters and the numbered steps to fix it yourself.
+4. Save a report to send to a technician. Personal details (IP, PC name, user name) are hidden by default.
+5. Check again later: problems you fixed stay on the sheet marked *fixed since the last check*.
+
+![Performance tab in English (sample data)](docs/img/app-performance-en.png)
 
 ## What it checks
 
-| Area | What you get |
+| Area | Checks |
 |---|---|
-| CPU | Single-core and multi-core score, scaling factor |
-| RAM | Safe allocation test, read/write bandwidth |
-| Disk | Read/write speed and fsync latency |
-| Network | Ping, jitter, packet loss, DNS and TCP reachability (optional speed test) |
-| GPU | Detection, VRAM, usage and temperature when the driver exposes them |
-| Security (Windows) | Defender, firewall, listening ports, connections, local admins, startup items |
-| Security (Linux) | Firewall, sudo users, listening ports, connections, systemd services, containers |
+| Protection | Antivirus registered with Windows Security (any brand, not only Defender), definitions age, Tamper Protection, firewall per network, SmartScreen, Secure Boot, disk encryption (BitLocker) |
+| Updates | Days since the last Windows update, pending restart |
+| Accounts | User Account Control, Guest account, automatic sign-in and stored password (presence only, never the password) |
+| Remote access | Remote Desktop and Network Level Authentication, SMBv1, services reachable from the network |
+| Performance | Processor, memory speed and how full it is, disk speed and free space, internet stability, graphics card temperature |
 
-Each run produces an overall score out of 100, a status per area, and reports in JSON, HTML,
-Markdown, DOCX and a flat JSON ready for Supabase. A local SQLite history powers comparisons and a
-score trend chart.
+Measurements repeat several times and report the median with a confidence level; disk reads bypass the
+Windows file cache so you see the disk's real speed, not RAM.
 
-## Quick start
+## Download
+
+Tagged [releases](https://github.com/amaragioglio/pcbench-local/releases) include:
+
+- `PCBench-<version>-windows.exe`: the window, for everyone.
+- `pcbench-cli-<version>-windows.exe`: the terminal tool, for technicians.
+
+They are unsigned, so Windows SmartScreen may warn you: choose **More info → Run anyway**, or build
+from source. For the full security check, right-click and choose **Run as administrator** (the app also
+offers to restart itself as administrator).
+
+## Run from source
 
 **Windows** (Python 3.11+):
 
 ```powershell
 git clone https://github.com/amaragioglio/pcbench-local.git
 cd pcbench-local
-.\setup.bat        # creates .venv and installs dependencies
-.\pcbench.bat      # guided wizard
+.\setup.bat                                   # creates .venv and installs dependencies
+.\.venv\Scripts\python.exe main.py app         # desktop window
+.\pcbench.bat                                 # terminal wizard
 ```
 
-**Linux / macOS**:
+**Linux / macOS** (the window needs pywebview and a system webview; the security audit is Windows-first):
 
 ```bash
-git clone https://github.com/amaragioglio/pcbench-local.git
-cd pcbench-local
-python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
-./.venv/bin/python main.py wizard
+python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt pywebview
+./.venv/bin/python main.py app
 ```
 
-Prefer a single file? Tagged [releases](https://github.com/amaragioglio/pcbench-local/releases) include
-`pcbench-<version>-windows.exe`. It is unsigned, so Windows SmartScreen may warn you: choose
-**More info → Run anyway**, or build from source.
+## For technicians: the terminal tool
+
+The original terminal interface stays available with every option: profiles, report formats (JSON,
+HTML, DOCX, Markdown, Supabase), comparisons, SQLite history and weekly scheduling.
+
+![HTML report](docs/img/html-report.png)
 
 ## Privacy and security
 
