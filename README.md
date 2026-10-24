@@ -1,85 +1,70 @@
 # PCBench Local
 
-Terminal-first local PC benchmark, hardware inventory, network check, GPU detection and read-only security audit.
+**Benchmark, hardware check and read-only security audit for your PC, from the terminal.**
+Find out if your machine is healthy, compare it with itself over time, and share a report
+without leaking your IP, hostname or username.
 
-The interface is designed for the terminal: live process output, metric bars and exportable reports.
+No account, no telemetry, no uploads. Everything runs and stays on your computer.
 
-## Current State
+![HTML report](docs/img/html-report.png)
 
-- CPU single-core and multi-core benchmark.
-- RAM allocation and approximate read/write bandwidth.
-- Disk read, write and fsync-overhead latency.
-- Network ping, jitter, DNS and TCP connectivity.
-- GPU detection, VRAM, usage and temperature when exposed by the driver.
-- Windows security audit: Defender, firewall, ports, connections, local admins and startup entries.
-- Linux security audit: firewall, sudo users, ports, connections, systemd services and container detection.
-- JSON, HTML and DOCX reports compatible with OnlyOffice.
-- Markdown report for GitHub/issues.
-- Supabase-optimized flat JSON export.
-- Dashboard with overall score and category status.
-- Report comparison.
-- Dockerfile for portable usage, with the normal hardware visibility limits of containers.
+## What it checks
 
-## Security
+| Area | What you get |
+|---|---|
+| CPU | Single-core and multi-core score, scaling factor |
+| RAM | Safe allocation test, read/write bandwidth |
+| Disk | Read/write speed and fsync latency |
+| Network | Ping, jitter, packet loss, DNS and TCP reachability (optional speed test) |
+| GPU | Detection, VRAM, usage and temperature when the driver exposes them |
+| Security (Windows) | Defender, firewall, listening ports, connections, local admins, startup items |
+| Security (Linux) | Firewall, sudo users, listening ports, connections, systemd services, containers |
 
-- Reports and logs are local-only.
-- There is no automatic upload.
-- The security audit is read-only.
-- Use `--sanitize` before sharing reports outside your machine.
-- If PCBench is not running as administrator/root, the security audit marks `partial: true`.
-- Runtime logs are written to `pcbench.log` in the selected report directory.
-- See [SECURITY.md](SECURITY.md) for scope and outbound network targets.
+Each run produces an overall score out of 100, a status per area, and reports in JSON, HTML,
+Markdown, DOCX and a flat JSON ready for Supabase. A local SQLite history powers comparisons and a
+score trend chart.
 
-## Install
+## Quick start
 
-Windows:
+**Windows** (Python 3.11+):
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
+git clone https://github.com/amaragioglio/pcbench-local.git
+cd pcbench-local
+.\setup.bat        # creates .venv and installs dependencies
+.\pcbench.bat      # guided wizard
 ```
 
-Development on Windows:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
-```
-
-Guided Windows setup:
-
-```powershell
-.\setup.bat
-```
-
-Linux/macOS:
+**Linux / macOS**:
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/python -m pip install -r requirements.txt
+git clone https://github.com/amaragioglio/pcbench-local.git
+cd pcbench-local
+python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+./.venv/bin/python main.py wizard
 ```
 
-## Usage
+Prefer a single file? Tagged [releases](https://github.com/amaragioglio/pcbench-local/releases) include
+`pcbench-<version>-windows.exe`. It is unsigned, so Windows SmartScreen may warn you: choose
+**More info → Run anyway**, or build from source.
 
-## Download
+## Privacy and security
 
-Tagged releases build a standalone Windows executable named `pcbench-<version>-windows.exe`.
-
-Until the first release is tagged, run from source with the commands below.
-
-Unsigned Windows binaries may trigger SmartScreen. If that happens, choose **More info** and **Run anyway**, or build from source locally.
-
-Recommended interactive mode:
+- **Nothing is uploaded.** Reports, logs and history are written only to your reports folder.
+- **The audit is read-only.** It never changes firewall, Defender, services or users.
+- **Share with `--sanitize`.** Hostnames, IPs, MAC addresses, usernames, user folders, command paths and
+  connection endpoints are replaced with tokens. Tokens are keyed with a random secret per run, so the
+  same IP looks the same inside one report but cannot be recovered by guessing.
+- Without administrator/root rights the audit still runs and is marked `partial: true`.
+- Network checks contact only the targets listed in [SECURITY.md](SECURITY.md).
 
 ```powershell
-.\.venv\Scripts\python.exe main.py wizard
+.\.venv\Scripts\python.exe main.py run --quick --sanitize --reports json,html,md
 ```
 
-Windows launcher:
+## More commands
 
-```powershell
-.\pcbench.bat
-```
+Examples use the Windows virtual environment path; on Linux/macOS use `./.venv/bin/python`.
 
 Version:
 
@@ -108,7 +93,7 @@ Shareable sanitized report:
 Custom output directory and retention:
 
 ```powershell
-.\.venv\Scripts\python.exe main.py run --quick --output-dir C:\Users\andres\Documents\PCBench\reports --keep-last 20
+.\.venv\Scripts\python.exe main.py run --quick --output-dir D:\PCBench\reports --keep-last 20
 ```
 
 Compare the two latest JSON reports:
@@ -269,3 +254,12 @@ pyproject.toml
 ## Scope
 
 PCBench does not replace professional tools such as Cinebench, CrystalDiskMark, 3DMark or MemTest86. It is built for local diagnostics, repeated comparisons and basic read-only security posture checks.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md): every bug fix ships with
+a test, and `python -m pytest` must pass. Security issues: see [SECURITY.md](SECURITY.md).
+
+## License
+
+[MIT](LICENSE)

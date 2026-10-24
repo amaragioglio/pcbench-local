@@ -1,17 +1,14 @@
 # Changelog
 
-## 0.1.0
-
-- Added terminal-first CLI.
-- Added system inventory.
-- Added RAM, CPU, disk, network, and GPU diagnostics.
-- Added read-only local security audit.
-- Added JSON, HTML, and DOCX reports.
-- Added report comparison.
-- Added Dockerfile and GitHub Actions CI.
-- Added project packaging metadata.
-
 ## Unreleased
+
+- Harden `--sanitize`: tokens are now keyed per run (HMAC) instead of plain truncated SHA-256, which allowed recovering private IP addresses by brute force. Also redacts MAC addresses and user profile folders found in free text.
+- Improve HTML report: overall score with per-area bars, color-coded OK/WARN/FAIL, security findings listed by severity, readable timestamps, mobile layout without horizontal scroll.
+- Show only the JSON file name in the HTML report; full paths could expose the account name.
+- Fix CI dependency audit for Windows-only packages on Linux runners.
+- Rewrite README introduction, quick start and privacy section for public release.
+
+## 0.3.0
 
 - Added normalized dashboard scores.
 - Added Markdown report export.
@@ -36,3 +33,14 @@
 - Added local SQLite run history with `pcbench history`.
 - Added inline HTML score trend charts backed by SQLite history.
 - Added weekly schedule command with Windows Scheduled Task support and cron guidance.
+
+## 0.1.0
+
+- Added terminal-first CLI.
+- Added system inventory.
+- Added RAM, CPU, disk, network, and GPU diagnostics.
+- Added read-only local security audit.
+- Added JSON, HTML, and DOCX reports.
+- Added report comparison.
+- Added Dockerfile and GitHub Actions CI.
+- Added project packaging metadata.

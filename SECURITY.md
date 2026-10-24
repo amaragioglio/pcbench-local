@@ -14,7 +14,7 @@ When the tool is not running with administrator/root privileges, audit output is
 
 ## Reporting a Vulnerability
 
-For private repositories, report issues directly to the repository owner.
+Please do not open a public issue for vulnerabilities. Use GitHub's **Report a vulnerability** button on the Security tab of this repository (private vulnerability reporting).
 
 When reporting, include:
 
@@ -27,7 +27,7 @@ When reporting, include:
 
 Generated reports may include local hardware details, usernames, IP addresses, listening ports, process names, and security configuration summaries. Reports are ignored by Git via `/reports/` and should be reviewed before sharing publicly.
 
-Use `--sanitize` when generating reports that will be shared, uploaded, or imported into an external database. Sanitized reports replace hostnames, IP addresses, usernames, command paths, and connection endpoints with deterministic truncated hash tokens.
+Use `--sanitize` when generating reports that will be shared, uploaded, or imported into an external database. Sanitized reports replace hostnames, IP addresses, MAC addresses, usernames, user profile folders, command paths, and connection endpoints with tokens. Tokens are HMAC-SHA256 values keyed with a random secret generated for each run: they are consistent within one report, but cannot be reversed by hashing candidate values (a plain hash of a private IPv4 address can be brute-forced in milliseconds). Tokens from different runs do not match.
 
 Runtime logs are written to `reports/pcbench.log` with simple rotation. Logs are local-only and ignored by Git; they are intended for troubleshooting module start, finish, artifacts, and failures.
 

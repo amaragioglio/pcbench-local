@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -20,18 +21,20 @@ def save_html_report(report: dict[str, Any], json_path: Path | None = None, outp
 def _render_html(report: dict[str, Any], json_path: Path | None, trend: list[dict[str, Any]] | None = None) -> str:
     results = report.get("results", {})
     dashboard = report.get("dashboard", {})
+    security = results.get("security_audit")
     cards = [
-        _card("Dashboard", _dashboard_rows(dashboard)),
         _trend_card(trend or []),
         _card("System", _system_rows(results.get("system_info"))),
-        _card("RAM", _memory_rows(results.get("memory_benchmark"))),
         _card("CPU", _cpu_rows(results.get("cpu_benchmark"))),
+        _card("RAM", _memory_rows(results.get("memory_benchmark"))),
         _card("Disk", _disk_rows(results.get("disk_benchmark"))),
         _card("Network", _network_rows(results.get("network_benchmark"))),
         _card("GPU", _gpu_rows(results.get("gpu_benchmark"))),
-        _card("Security", _security_rows(results.get("security_audit"))),
+        _security_card(security),
     ]
-    source = f"<p>JSON: {html.escape(str(json_path))}</p>" if json_path else ""
+    # Only the file name: a full path can contain the user's account name.
+    source = f'<span>Data: {html.escape(re.split(r"[\\/]", str(json_path))[-1])}</span>' if json_path else ""
+    sanitized = '<span class="tag">sanitized</span>' if report.get("sanitized") else ""
     return f"""<!doctype html>
 <html lang="en">
 <head>
@@ -39,34 +42,126 @@ def _render_html(report: dict[str, Any], json_path: Path | None, trend: list[dic
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>PCBench Local Report</title>
   <style>
-    :root {{ color-scheme: dark; --bg:#050805; --panel:#071207; --line:#1ee66d; --muted:#6fae7d; --text:#d8ffe1; --warn:#ffd166; }}
-    body {{ margin:0; background:var(--bg); color:var(--text); font:14px Consolas, "Cascadia Mono", monospace; }}
-    header {{ padding:24px; border-bottom:1px solid #134d25; background:#030603; }}
-    h1 {{ margin:0 0 6px; color:var(--line); letter-spacing:0; font-size:28px; }}
-    h2 {{ margin:0 0 12px; color:var(--line); font-size:18px; }}
-    main {{ padding:18px; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px; }}
-    section {{ border:1px solid #145c2b; background:var(--panel); padding:14px; }}
+    :root {{ color-scheme: dark; --bg:#050805; --panel:#071207; --edge:#145c2b; --rule:#103d20;
+             --line:#1ee66d; --muted:#7fbf8d; --text:#d8ffe1; --ok:#1ee66d; --warn:#ffd166; --fail:#ff6b6b; }}
+    * {{ box-sizing:border-box; }}
+    body {{ margin:0; background:var(--bg); color:var(--text);
+            font:14px/1.5 "Cascadia Mono", Consolas, "SFMono-Regular", Menlo, monospace;
+            font-variant-numeric:tabular-nums; }}
+    ::selection {{ background:var(--line); color:var(--bg); }}
+    header {{ padding:24px 24px 20px; border-bottom:1px solid var(--rule); background:#030603; }}
+    h1 {{ margin:0 0 8px; color:var(--line); font-size:22px; letter-spacing:.02em; }}
+    h2 {{ margin:0 0 12px; color:var(--line); font-size:15px; letter-spacing:.04em; text-transform:uppercase; }}
+    .meta {{ color:var(--muted); display:flex; flex-wrap:wrap; gap:4px 16px; overflow-wrap:anywhere; }}
+    .tag {{ border:1px solid var(--edge); padding:0 6px; color:var(--text); }}
+    main {{ padding:18px; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px;
+            max-width:1400px; }}
+    section {{ border:1px solid var(--edge); background:var(--panel); padding:16px; min-width:0; }}
+    .overview {{ grid-column:1 / -1; display:grid; grid-template-columns:minmax(160px,220px) 1fr; gap:8px 28px; align-items:start; }}
+    .total {{ font-size:48px; line-height:1; color:var(--text); }}
+    .total small {{ font-size:16px; color:var(--muted); }}
+    .areas {{ display:grid; gap:10px; }}
+    .area {{ display:grid; grid-template-columns:56px 1fr 48px 52px; gap:12px; align-items:center; }}
+    .area .detail {{ grid-column:2 / -1; color:var(--muted); font-size:12px; margin-top:-6px; overflow-wrap:anywhere; }}
+    .bar {{ height:6px; background:var(--rule); }}
+    .bar span {{ display:block; height:100%; background:currentColor; }}
+    .ok {{ color:var(--ok); }} .warn {{ color:var(--warn); }} .fail {{ color:var(--fail); }}
+    .num {{ text-align:right; }}
     svg {{ width:100%; height:auto; }}
-    svg line {{ stroke:#134d25; stroke-width:1; }}
-    svg polyline {{ fill:none; stroke:var(--line); stroke-width:3; }}
+    svg line {{ stroke:var(--rule); stroke-width:1; }}
+    svg polyline {{ fill:none; stroke:var(--line); stroke-width:2; }}
     svg circle {{ fill:var(--line); }}
     table {{ width:100%; border-collapse:collapse; }}
-    td {{ padding:6px 0; border-bottom:1px solid #103d20; vertical-align:top; }}
-    td:first-child {{ color:var(--muted); width:42%; }}
-    .meta {{ color:var(--muted); }}
+    td {{ padding:6px 0; border-bottom:1px solid var(--rule); vertical-align:top; overflow-wrap:anywhere; }}
+    td:first-child {{ color:var(--muted); width:42%; padding-right:12px; }}
+    ul.findings {{ list-style:none; margin:0; padding:0; }}
+    ul.findings li {{ padding:6px 0; border-bottom:1px solid var(--rule); display:grid; grid-template-columns:64px 1fr; gap:10px; }}
+    @media (max-width:560px) {{
+      .overview {{ grid-template-columns:1fr; }}
+      header {{ padding:20px 16px; }} main {{ padding:12px; }}
+    }}
   </style>
 </head>
 <body>
   <header>
-    <h1>PCBENCH LOCAL // REPORT</h1>
-    <div class="meta">Started: {html.escape(str(report.get("started_at", "")))} | Finished: {html.escape(str(report.get("finished_at", "")))}</div>
-    {source}
+    <h1>PCBench Local report</h1>
+    <div class="meta">
+      <span>{html.escape(_when(report))}</span>
+      {source}
+      {sanitized}
+    </div>
   </header>
   <main>
+    {_overview(dashboard)}
     {''.join(cards)}
   </main>
 </body>
 </html>"""
+
+
+def _when(report: dict[str, Any]) -> str:
+    try:
+        start = datetime.fromisoformat(str(report.get("started_at")))
+        end = datetime.fromisoformat(str(report.get("finished_at")))
+    except (TypeError, ValueError):
+        return f"Started {report.get('started_at', '')}"
+    seconds = max(0, round((end - start).total_seconds()))
+    return f"{start.strftime('%d %b %Y, %H:%M')} · took {seconds} s"
+
+
+def _status_class(status: Any) -> str:
+    value = str(status).upper()
+    if value in ("OK", "PASS", "GOOD"):
+        return "ok"
+    if value in ("WARN", "WARNING"):
+        return "warn"
+    return "fail"
+
+
+def _overview(data: dict | None) -> str:
+    if not data:
+        return ""
+    status = data.get("overall_status", "")
+    areas = []
+    for row in data.get("rows", []):
+        try:
+            width = max(0.0, min(100.0, float(row["score"])))
+        except (TypeError, ValueError):
+            width = 0.0
+        cls = _status_class(row.get("status"))
+        areas.append(
+            f'<div class="area"><span>{html.escape(str(row["area"]))}</span>'
+            f'<div class="bar {cls}"><span style="width:{width:.0f}%"></span></div>'
+            f'<span class="num">{html.escape(str(row["score"]))}</span>'
+            f'<span class="{cls}">{html.escape(str(row["status"]))}</span>'
+            f'<div class="detail">{html.escape(str(row.get("detail", "")))}</div></div>'
+        )
+    return (
+        '<section class="overview"><div><h2>Overall</h2>'
+        f'<div class="total">{html.escape(str(data.get("overall_score")))}<small> / 100</small></div>'
+        f'<div class="{_status_class(status)}">{html.escape(str(status))}</div></div>'
+        f'<div class="areas">{"".join(areas)}</div></section>'
+    )
+
+
+def _security_card(data: dict | None) -> str:
+    if not data:
+        return _card("Security", [])
+    order = {"critical": 0, "fail": 0, "warning": 1, "info": 2, "ok": 3}
+    findings = sorted(data.get("findings", []), key=lambda f: order.get(str(f.get("severity")).lower(), 4))
+    severity_class = {"critical": "fail", "fail": "fail", "warning": "warn", "info": "", "ok": "ok"}
+    items = "".join(
+        f'<li><span class="{severity_class.get(str(f.get("severity")).lower(), "")}">'
+        f'{html.escape(str(f.get("severity", "")).upper())}</span>'
+        f'<span>{html.escape(str(f.get("area", "")))}: {html.escape(str(f.get("message", "")))}</span></li>'
+        for f in findings
+    )
+    table = "".join(
+        f"<tr><td>{html.escape(label)}</td><td>{html.escape(str(value))}</td></tr>"
+        for label, value in _security_rows(data)
+    )
+    partial = '<p class="warn">Partial audit: run as administrator/root for full results.</p>' if data.get("partial") else ""
+    return f'<section><h2>Security</h2>{partial}<ul class="findings">{items}</ul><table>{table}</table></section>'
 
 
 def _card(title: str, rows: list[tuple[str, Any]]) -> str:
@@ -79,7 +174,7 @@ def _card(title: str, rows: list[tuple[str, Any]]) -> str:
 def _trend_card(rows: list[dict[str, Any]]) -> str:
     values = [row for row in rows if isinstance(row.get("overall_score"), (int, float))]
     if len(values) < 2:
-        return _card("Score Trend", [("Status", "Need at least two history rows")])
+        return _card("Score trend", [("Status", "Run PCBench again to see a trend")])
 
     width = 420
     height = 150
@@ -108,7 +203,7 @@ def _trend_card(rows: list[dict[str, Any]]) -> str:
     </svg>
     <p class="meta">Overall score trend: {summary}</p>
     """
-    return f"<section><h2>Score Trend</h2>{svg}</section>"
+    return f"<section><h2>Score trend</h2>{svg}</section>"
 
 
 def _dashboard_rows(data: dict | None) -> list[tuple[str, Any]]:
