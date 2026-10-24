@@ -28,4 +28,6 @@ def test_linux_findings_mark_limited_privileges() -> None:
         container={"detected": False},
     )
 
-    assert any(finding["area"] == "Privileges" and finding["severity"] == "warning" for finding in findings)
+    # Missing root limits the scan; it is not itself a security problem.
+    assert any(finding.get("id") == "partial_scan" and finding["severity"] == "info" for finding in findings)
+    assert not any(finding["severity"] == "warning" for finding in findings)

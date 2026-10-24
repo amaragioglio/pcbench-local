@@ -124,9 +124,12 @@ def _security_score(data: dict | None) -> MetricRow | None:
     if not data:
         return None
     summary = data.get("summary", {})
+    critical = summary.get("critical", 0)
     warnings = summary.get("warning", 0)
-    score = max(0, 100 - warnings * 25)
-    return _row("SEC", score, f"{summary.get('ok', 0)} ok | {warnings} warnings | {summary.get('info', 0)} info")
+    # A critical issue (no antivirus, SMBv1, open RDP...) weighs more than a warning.
+    score = max(0, 100 - critical * 35 - warnings * 15)
+    detail = f"{critical} critical | {warnings} warnings | {summary.get('ok', 0)} ok | {summary.get('info', 0)} info"
+    return _row("SEC", score, detail)
 
 
 def _row(area: str, score: float, detail: str) -> MetricRow:

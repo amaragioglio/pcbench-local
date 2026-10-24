@@ -10,7 +10,7 @@ a = Analysis(
     [str(ROOT / "main.py")],
     pathex=[str(ROOT)],
     binaries=[],
-    datas=[],
+    datas=[(str(ROOT / "pcbench" / "security" / "windows_posture.ps1"), "pcbench/security")],
     hiddenimports=["wmi", "pynvml"],
     hookspath=[],
     hooksconfig={},

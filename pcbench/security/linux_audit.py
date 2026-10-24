@@ -227,16 +227,17 @@ def _build_findings(
     if not privileges.get("is_root"):
         findings.append(
             {
-                "severity": "warning",
-                "area": "Privileges",
+                "id": "partial_scan",
+                "severity": "info",
+                "area": "Scope",
                 "message": "Audit ran without root/sudo; some data may be partial.",
             }
         )
 
     if firewall.get("enabled") is True:
-        findings.append({"severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} is active."})
+        findings.append({"id": "firewall_ok", "severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} is active."})
     elif firewall.get("enabled") is False:
-        findings.append({"severity": "warning", "area": "Firewall", "message": f"{firewall.get('manager')} is not active."})
+        findings.append({"id": "linux_firewall_off", "severity": "warning", "area": "Firewall", "message": f"{firewall.get('manager')} is not active."})
     else:
         findings.append({"severity": "info", "area": "Firewall", "message": "Could not determine active firewall."})
 
@@ -266,6 +267,7 @@ def _build_findings(
 
 def _summarize_findings(findings: list[dict[str, str]]) -> dict[str, int]:
     return {
+        "critical": sum(1 for finding in findings if finding["severity"] == "critical"),
         "ok": sum(1 for finding in findings if finding["severity"] == "ok"),
         "warning": sum(1 for finding in findings if finding["severity"] == "warning"),
         "info": sum(1 for finding in findings if finding["severity"] == "info"),
