@@ -2,8 +2,16 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import hmac
 import re
+import secrets
 from typing import Any
+
+# Random key generated once per run. Tokens stay consistent inside a report
+# (the same IP always maps to the same token, so readers can still correlate),
+# but cannot be reversed by hashing candidate values. A plain SHA-256 of a
+# private IPv4 address can be brute-forced in milliseconds.
+_RUN_KEY = secrets.token_bytes(32)
 
 
 SENSITIVE_KEYS = {
@@ -33,7 +41,13 @@ def sanitize_report(report: dict[str, Any]) -> dict[str, Any]:
     return sanitized
 
 
+_USER_PATH = re.compile(r"(?i)((?:[a-z]:)?[\\/](?:users|home)[\\/])([^\\/\s\"']+)")
+_MAC = re.compile(r"\b(?:[0-9a-fA-F]{2}[:-]){5}[0-9a-fA-F]{2}\b")
+
+
 def sanitize_text(text: str) -> str:
+    text = _USER_PATH.sub(lambda match: match.group(1) + _token("user", match.group(2)), text)
+    text = _MAC.sub(lambda match: _token("mac", match.group(0).lower()), text)
     text = re.sub(r"\b(?:\d{1,3}\.){3}\d{1,3}\b", lambda match: _token("ip", match.group(0)), text)
     text = re.sub(
         r"\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b",
@@ -73,5 +87,5 @@ def _label_for_path(path: tuple[str, ...]) -> str | None:
 
 
 def _token(label: str, value: Any) -> str:
-    digest = hashlib.sha256(str(value).encode("utf-8")).hexdigest()[:12]
+    digest = hmac.new(_RUN_KEY, str(value).encode("utf-8"), hashlib.sha256).hexdigest()[:12]
     return f"{label}_{digest}"

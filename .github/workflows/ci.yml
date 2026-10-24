@@ -26,4 +26,5 @@ jobs:
         run: |
           python -m pip_audit -r requirements.txt
           python -m pip_audit -r requirements-dev.txt
-          python -m pip_audit -r requirements-windows.txt
+          # Windows-only packages cannot be resolved on Linux; audit the pins directly.
+          python -m pip_audit --no-deps --disable-pip -r requirements-windows.txt
