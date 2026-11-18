@@ -2,9 +2,19 @@
 
 Terminal-first local PC benchmark, hardware inventory, network check, GPU detection and read-only security audit.
 
-The interface is designed for the terminal: live process output, metric bars and exportable reports.
+Run a quick check, export a report, and compare it with later runs to track changes in your PC's performance.
 
-## Current State
+## Quick start
+
+**Windows (standalone):** Download `pcbench-0.3.0-windows.exe` from [release v0.3.0](https://github.com/amaragioglio/pcbench-local/releases/tag/v0.3.0), then launch it from PowerShell:
+
+```powershell
+.\pcbench-0.3.0-windows.exe wizard
+```
+
+You can also [run from source](#install) on Windows, Linux, or macOS with Python 3.11+.
+
+## Features
 
 - CPU single-core and multi-core benchmark.
 - RAM allocation and approximate read/write bandwidth.
@@ -61,14 +71,6 @@ python3 -m venv .venv
 
 ## Usage
 
-## Download
-
-Tagged releases build a standalone Windows executable named `pcbench-<version>-windows.exe`.
-
-Until the first release is tagged, run from source with the commands below.
-
-Unsigned Windows binaries may trigger SmartScreen. If that happens, choose **More info** and **Run anyway**, or build from source locally.
-
 Recommended interactive mode:
 
 ```powershell
@@ -108,7 +110,7 @@ Shareable sanitized report:
 Custom output directory and retention:
 
 ```powershell
-.\.venv\Scripts\python.exe main.py run --quick --output-dir C:\Users\andres\Documents\PCBench\reports --keep-last 20
+.\.venv\Scripts\python.exe main.py run --quick --output-dir .\reports --keep-last 20
 ```
 
 Compare the two latest JSON reports:
@@ -269,3 +271,11 @@ pyproject.toml
 ## Scope
 
 PCBench does not replace professional tools such as Cinebench, CrystalDiskMark, 3DMark or MemTest86. It is built for local diagnostics, repeated comparisons and basic read-only security posture checks.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and tests.
+
+## License
+
+[MIT](LICENSE).
