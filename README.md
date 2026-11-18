@@ -1,87 +1,92 @@
 # PCBench Local
 
-Terminal-first local PC benchmark, hardware inventory, network check, GPU detection and read-only security audit.
+**Is my PC safe? Is it performing well? One button, plain answers, step-by-step fixes.**
+A free, read-only check-up for Windows PCs, in Spanish and English. It reviews your security settings
+first and your hardware second, and tells you exactly what to do about each problem.
 
-Run a quick check, export a report, and compare it with later runs to track changes in your PC's performance.
+No account, no telemetry, no uploads. Everything runs and stays on your computer.
+**It is not an antivirus**: it checks how your PC is configured, not whether it is infected.
 
-## Quick start
+![PCBench window, Spanish, security tab (sample data)](docs/img/app-security-es.png)
+<sub>Screenshot with sample data.</sub>
 
-**Windows (standalone):** Download `pcbench-0.3.0-windows.exe` from [release v0.3.0](https://github.com/amaragioglio/pcbench-local/releases/tag/v0.3.0), then launch it from PowerShell:
+## How it works
 
-```powershell
-.\pcbench-0.3.0-windows.exe wizard
-```
+1. Open **PCBench** and press **Check my PC** (*Revisar mi PC*). It takes about two minutes.
+2. Every check becomes a line with three lights: **red** fix now, **amber** should fix, **green** fine.
+3. Open a red or amber line to read why it matters and the numbered steps to fix it yourself.
+4. Save a report to send to a technician. Personal details (IP, PC name, user name) are hidden by default.
+5. Check again later: problems you fixed stay on the sheet marked *fixed since the last check*.
 
-You can also [run from source](#install) on Windows, Linux, or macOS with Python 3.11+.
+![Performance tab in English (sample data)](docs/img/app-performance-en.png)
 
-## Features
+## What it checks
 
-- CPU single-core and multi-core benchmark.
-- RAM allocation and approximate read/write bandwidth.
-- Disk read, write and fsync-overhead latency.
-- Network ping, jitter, DNS and TCP connectivity.
-- GPU detection, VRAM, usage and temperature when exposed by the driver.
-- Windows security audit: Defender, firewall, ports, connections, local admins and startup entries.
-- Linux security audit: firewall, sudo users, ports, connections, systemd services and container detection.
-- JSON, HTML and DOCX reports compatible with OnlyOffice.
-- Markdown report for GitHub/issues.
-- Supabase-optimized flat JSON export.
-- Dashboard with overall score and category status.
-- Report comparison.
-- Dockerfile for portable usage, with the normal hardware visibility limits of containers.
+| Area | Checks |
+|---|---|
+| Protection | Antivirus registered with Windows Security (any brand, not only Defender), definitions age, Tamper Protection, firewall per network, SmartScreen, Secure Boot, disk encryption (BitLocker) |
+| Updates | Days since the last Windows update, pending restart |
+| Accounts | User Account Control, Guest account, automatic sign-in and stored password (presence only, never the password) |
+| Remote access | Remote Desktop and Network Level Authentication, SMBv1, services reachable from the network |
+| Performance | Processor, memory speed and how full it is, disk speed and free space, internet stability, graphics card temperature |
 
-## Security
+Measurements repeat several times and report the median with a confidence level; disk reads bypass the
+Windows file cache so you see the disk's real speed, not RAM.
 
-- Reports and logs are local-only.
-- There is no automatic upload.
-- The security audit is read-only.
-- Use `--sanitize` before sharing reports outside your machine.
-- If PCBench is not running as administrator/root, the security audit marks `partial: true`.
-- Runtime logs are written to `pcbench.log` in the selected report directory.
-- See [SECURITY.md](SECURITY.md) for scope and outbound network targets.
+## Download
 
-## Install
+- **Latest release:** [v0.3.0](https://github.com/amaragioglio/pcbench-local/releases/tag/v0.3.0) ships
+  `pcbench-0.3.0-windows.exe`, the terminal tool. Launch it from PowerShell with `.\pcbench-0.3.0-windows.exe wizard`.
+- **Next release (0.4.0)** adds the desktop window: `PCBench-<version>-windows.exe` for everyone and
+  `pcbench-cli-<version>-windows.exe` for technicians. Until then, open the window from source (below).
 
-Windows:
+The executables are unsigned, so Windows SmartScreen may warn you: choose **More info → Run anyway**, or
+build from source. For the full security check, right-click and choose **Run as administrator** (the
+window also offers to restart itself as administrator).
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
-```
+## Run from source
 
-Development on Windows:
+**Windows** (Python 3.11+):
 
 ```powershell
-.\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
-.\.venv\Scripts\python.exe -m pip install -r requirements-windows.txt
+git clone https://github.com/amaragioglio/pcbench-local.git
+cd pcbench-local
+.\setup.bat                                   # creates .venv and installs dependencies
+.\.venv\Scripts\python.exe main.py app         # desktop window
+.\pcbench.bat                                 # terminal wizard
 ```
 
-Guided Windows setup:
-
-```powershell
-.\setup.bat
-```
-
-Linux/macOS:
+**Linux / macOS** (the window needs pywebview and a system webview; the security audit is Windows-first):
 
 ```bash
-python3 -m venv .venv
-./.venv/bin/python -m pip install -r requirements.txt
+python3 -m venv .venv && ./.venv/bin/pip install -r requirements.txt pywebview
+./.venv/bin/python main.py app
 ```
 
-## Usage
+## For technicians: the terminal tool
 
-Recommended interactive mode:
+The original terminal interface stays available with every option: profiles, report formats (JSON,
+HTML, DOCX, Markdown, Supabase), comparisons, SQLite history and weekly scheduling.
+
+![HTML report](docs/img/html-report.png)
+
+## Privacy and security
+
+- **Nothing is uploaded.** Reports, logs and history are written only to your reports folder.
+- **The audit is read-only.** It never changes firewall, Defender, services or users.
+- **Share with `--sanitize`.** Hostnames, IPs, MAC addresses, usernames, user folders, command paths and
+  connection endpoints are replaced with tokens. Tokens are keyed with a random secret per run, so the
+  same IP looks the same inside one report but cannot be recovered by guessing.
+- Without administrator/root rights the audit still runs and is marked `partial: true`.
+- Network checks contact only the targets listed in [SECURITY.md](SECURITY.md).
 
 ```powershell
-.\.venv\Scripts\python.exe main.py wizard
+.\.venv\Scripts\python.exe main.py run --quick --sanitize --reports json,html,md
 ```
 
-Windows launcher:
+## More commands
 
-```powershell
-.\pcbench.bat
-```
+Examples use the Windows virtual environment path; on Linux/macOS use `./.venv/bin/python`.
 
 Version:
 
@@ -274,8 +279,9 @@ PCBench does not replace professional tools such as Cinebench, CrystalDiskMark, 
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and tests.
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md): every bug fix ships with
+a test, and `python -m pytest` must pass. Security issues: see [SECURITY.md](SECURITY.md).
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE)

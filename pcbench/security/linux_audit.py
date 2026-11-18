@@ -227,45 +227,47 @@ def _build_findings(
     if not privileges.get("is_root"):
         findings.append(
             {
-                "severity": "warning",
-                "area": "Privileges",
+                "id": "partial_scan",
+                "severity": "info",
+                "area": "Scope",
                 "message": "Audit ran without root/sudo; some data may be partial.",
             }
         )
 
     if firewall.get("enabled") is True:
-        findings.append({"severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} is active."})
+        findings.append({"id": "firewall_ok", "severity": "ok", "area": "Firewall", "message": f"{firewall.get('manager')} is active."})
     elif firewall.get("enabled") is False:
-        findings.append({"severity": "warning", "area": "Firewall", "message": f"{firewall.get('manager')} is not active."})
+        findings.append({"id": "linux_firewall_off", "severity": "warning", "area": "Firewall", "message": f"{firewall.get('manager')} is not active."})
     else:
-        findings.append({"severity": "info", "area": "Firewall", "message": "Could not determine active firewall."})
+        findings.append({"id": "linux_firewall_unknown", "severity": "info", "area": "Firewall", "message": "Could not determine active firewall."})
 
     sudo_count = sudo_users.get("count", 0)
     if sudo_count > 0:
-        findings.append({"severity": "info", "area": "Sudo", "message": f"{sudo_count} user(s) in sudo/wheel/admin groups."})
+        findings.append({"id": "linux_sudo", "severity": "info", "area": "Sudo", "message": f"{sudo_count} user(s) in sudo/wheel/admin groups."})
     else:
-        findings.append({"severity": "ok", "area": "Sudo", "message": "No users detected in sudo/wheel/admin groups."})
+        findings.append({"id": "linux_sudo_none", "severity": "ok", "area": "Sudo", "message": "No users detected in sudo/wheel/admin groups."})
 
     exposed = sorted({row["port"] for row in listening_ports if row["is_common_exposed_port"]})
     if exposed:
         ports = ", ".join(str(port) for port in exposed[:16])
-        findings.append({"severity": "info", "area": "Ports", "message": f"Common listening ports: {ports}."})
+        findings.append({"id": "ports_exposed", "severity": "info", "area": "Ports", "message": f"Common listening ports: {ports}."})
     else:
-        findings.append({"severity": "ok", "area": "Ports", "message": "No common exposed listening ports detected."})
+        findings.append({"id": "ports_none", "severity": "ok", "area": "Ports", "message": "No common exposed listening ports detected."})
 
     if services.get("status") == "passed":
-        findings.append({"severity": "info", "area": "Services", "message": f"{services.get('active_count', 0)} active systemd services."})
+        findings.append({"id": "linux_services", "severity": "info", "area": "Services", "message": f"{services.get('active_count', 0)} active systemd services."})
     else:
-        findings.append({"severity": "info", "area": "Services", "message": "systemd unavailable or not queryable."})
+        findings.append({"id": "linux_services_unknown", "severity": "info", "area": "Services", "message": "systemd unavailable or not queryable."})
 
     if container.get("detected"):
-        findings.append({"severity": "info", "area": "Container", "message": "Container/WSL environment detected; hardware and security may differ from the host."})
+        findings.append({"id": "container", "severity": "info", "area": "Container", "message": "Container/WSL environment detected; hardware and security may differ from the host."})
 
     return findings
 
 
 def _summarize_findings(findings: list[dict[str, str]]) -> dict[str, int]:
     return {
+        "critical": sum(1 for finding in findings if finding["severity"] == "critical"),
         "ok": sum(1 for finding in findings if finding["severity"] == "ok"),
         "warning": sum(1 for finding in findings if finding["severity"] == "warning"),
         "info": sum(1 for finding in findings if finding["severity"] == "info"),

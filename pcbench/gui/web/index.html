@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:">
+  <title>PCBench Local</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <span class="brand-name">PCBench Local</span>
+      <span class="brand-sub" data-t="app_subtitle"></span>
+    </div>
+    <div class="bar-tools">
+      <span class="admin" id="admin" hidden></span>
+      <button class="link-btn" id="elevate" type="button" hidden data-t="admin_restart"></button>
+      <div class="lang" role="group" aria-label="Idioma / Language">
+        <button type="button" data-lang="es">ES</button>
+        <button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="summary" aria-live="polite">
+      <h1 class="sheet-title" data-t="sheet_title"></h1>
+      <p class="sheet-date" id="date"></p>
+
+      <div id="verdict" class="verdict">
+        <p class="verdict-title" id="verdict-title"></p>
+        <p class="verdict-sub" id="verdict-sub"></p>
+      </div>
+
+      <dl class="tally" id="tally" hidden>
+        <div><dt><span class="dot red" aria-hidden="true"></span><span id="t-red-label"></span></dt><dd id="t-red">0</dd></div>
+        <div><dt><span class="dot amber" aria-hidden="true"></span><span data-t="attention"></span></dt><dd id="t-amber">0</dd></div>
+        <div><dt><span class="dot green" aria-hidden="true"></span><span data-t="fine"></span></dt><dd id="t-green">0</dd></div>
+      </dl>
+
+      <div class="progress" id="progress" hidden>
+        <p class="progress-label" id="progress-label"></p>
+        <div class="progress-track"><span id="progress-fill"></span></div>
+      </div>
+
+      <button class="primary" id="run" type="button"></button>
+
+      <div class="report" id="report" hidden>
+        <label class="check">
+          <input type="checkbox" id="hide" checked>
+          <span data-t="hide_personal"></span>
+        </label>
+        <div class="report-actions">
+          <button class="secondary" id="save" type="button" data-t="save_report"></button>
+          <button class="link-btn" id="folder" type="button" data-t="open_folder"></button>
+        </div>
+        <p class="saved" id="saved" hidden data-t="saved_to"></p>
+      </div>
+
+      <p class="footnote" data-t="not_antivirus"></p>
+    </aside>
+
+    <main class="sheet">
+      <div class="tabs" role="tablist" id="tabs" hidden>
+        <button role="tab" id="tab-security" aria-controls="panel" aria-selected="true" type="button">
+          <span data-t="tab_security"></span><span class="count" id="c-security"></span>
+        </button>
+        <button role="tab" id="tab-performance" aria-controls="panel" aria-selected="false" type="button">
+          <span data-t="tab_performance"></span><span class="count" id="c-performance"></span>
+        </button>
+      </div>
+      <div id="panel" role="tabpanel" class="panel"></div>
+    </main>
+  </div>
+
+  <template id="row-tpl">
+    <li class="row">
+      <button class="row-head" type="button" aria-expanded="false">
+        <span class="lights" role="img">
+          <span class="light red"></span><span class="light amber"></span><span class="light green"></span>
+        </span>
+        <span class="row-text">
+          <span class="row-title"></span>
+          <span class="row-detail"></span>
+        </span>
+        <span class="row-value"></span>
+        <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 6l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="row-body" hidden>
+        <p class="why"></p>
+        <p class="fix-title" data-t="how_to_fix"></p>
+        <ol class="fix"></ol>
+      </div>
+    </li>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>

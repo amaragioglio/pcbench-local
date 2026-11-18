@@ -71,7 +71,12 @@ def _ram_score(data: dict | None) -> MetricRow | None:
     read = _num(data, "bandwidth", "read_mib_per_second")
     write = _num(data, "bandwidth", "write_mib_per_second")
     allocation = 100 if data.get("allocation", {}).get("status") == "passed" else 30
-    score = _average(_cap(read, 1000), _cap(write, 5000), allocation)
+    if (data.get("bandwidth") or {}).get("method_version", 1) >= 2:
+        # Real memory bandwidth (memcpy/memchr). References: ~15 GiB/s read and
+        # ~10 GiB/s write single-threaded on a current desktop.
+        score = _average(_cap(read, 15000), _cap(write, 10000), allocation)
+    else:  # reports from 0.3.x measured the Python interpreter, not RAM
+        score = _average(_cap(read, 1000), _cap(write, 5000), allocation)
     return _row("RAM", score, f"{write} MiB/s write | {read} MiB/s read")
 
 
@@ -81,7 +86,9 @@ def _disk_score(data: dict | None) -> MetricRow | None:
     read = _num(data, "read", "mib_per_second")
     write = _num(data, "write", "mib_per_second")
     latency = _num(data, "latency", "average_ms")
-    score = _average(_cap(read, 3500), _cap(write, 2000), _inverse_cap(latency, 5))
+    # A read served from the OS cache measures RAM, not the disk: leave it out.
+    trusted_read = read if (data.get("read") or {}).get("cache_bypassed", False) else None
+    score = _average(_cap(trusted_read, 3500), _cap(write, 2000), _inverse_cap(latency, 5))
     return _row("DISK", score, f"{write} MiB/s write | {read} MiB/s read | {latency} ms")
 
 
@@ -117,9 +124,12 @@ def _security_score(data: dict | None) -> MetricRow | None:
     if not data:
         return None
     summary = data.get("summary", {})
+    critical = summary.get("critical", 0)
     warnings = summary.get("warning", 0)
-    score = max(0, 100 - warnings * 25)
-    return _row("SEC", score, f"{summary.get('ok', 0)} ok | {warnings} warnings | {summary.get('info', 0)} info")
+    # A critical issue (no antivirus, SMBv1, open RDP...) weighs more than a warning.
+    score = max(0, 100 - critical * 35 - warnings * 15)
+    detail = f"{critical} critical | {warnings} warnings | {summary.get('ok', 0)} ok | {summary.get('info', 0)} info"
+    return _row("SEC", score, detail)
 
 
 def _row(area: str, score: float, detail: str) -> MetricRow:
